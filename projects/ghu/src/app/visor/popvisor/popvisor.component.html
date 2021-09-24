@@ -1,0 +1,54 @@
+<dx-popup
+    [width]="800"
+    [height]="450"
+    [showTitle]="true"
+    [(title)]="Titulo"
+    [dragEnabled]="true"
+    [resizeEnabled]="true"
+    [closeOnOutsideClick]="true"
+    [(visible)]="popupVisible"
+    >
+
+    <div *dxTemplate="let data of 'content'">
+        <div  class="flex-grow-1 min-h-0" style="height: 100%;">
+            <dx-data-grid
+              #GVisor
+              id="GVisor"
+              [dataSource]="DataVisor"
+              [showBorders]="true"
+              [height]="350"
+              [height]="'100%'"
+              [width]="'100%'"
+              [repaintChangesOnly]="true"
+              [highlightChanges]="true"
+              [customizeColumns]="customizeColumns"
+              [selectedRowKeys]="[]"
+              (onRowDblClick)="onSeleccRuta($event)"
+              (onCellClick)="onCellClick($event)"
+            >
+                <dxo-selection mode="single"></dxo-selection>
+                <dxo-scrolling mode="standard"></dxo-scrolling>
+                <dxo-paging [enabled]="false"></dxo-paging>
+                <dxo-header-filter
+                [visible]="true"
+                [allowSearch]="true"
+                ></dxo-header-filter>
+                <dxo-load-panel
+                [enabled]="true"
+                [showPane]="true"
+                [shading]="true"
+                [shadingColor]="'rgba(0,0,0,0.1)'"
+                ></dxo-load-panel>
+                <dxo-search-panel 
+                [visible]="true" >
+                </dxo-search-panel>
+                <dxo-pager
+                [showPageSizeSelector]="true"
+                [allowedPageSizes]="[10, 20, 50]"
+                [showNavigationButtons]="true">
+                </dxo-pager>              
+            </dx-data-grid>
+          </div>
+
+        </div>
+</dx-popup>

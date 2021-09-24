@@ -1,0 +1,31 @@
+::ng-deep .dx-menu .dx-menu-item .dx-menu-item-content {
+    padding: 4px 8px 1px;
+}
+::ng-deep .dx-texteditor.dx-editor-outlined .dx-placeholder:before {
+    padding-top: 5px;
+}
+
+::ng-deep .dx-texteditor.dx-editor-outlined .dx-texteditor-input {
+    padding: 3px 3px 3px 3px;
+}
+
+::ng-deep .dx-menu > div > ul > li:nth-child(14) > div {
+    top: -5px;
+    margin-left: -5px;
+}
+::ng-deep .dx-menu > div > ul > li:nth-child(14) > div > div {
+    padding-left: -2px;
+}
+
+::ng-deep .content h2 {
+    font-size: 25px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+}
+::ng-deep .dx-menu-horizontal {
+    height: 100%;
+    border-style: ridge;
+    border-color: lightgray;
+    border-width: thin;
+}

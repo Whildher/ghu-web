@@ -1,0 +1,84 @@
+<p-toolbar id="titPrincipal">
+    <div class="p-toolbar-group-left">
+        <h3 class="titPpal">Gestión Humana</h3>
+    </div>
+</p-toolbar>
+
+<dx-data-grid 
+    #GLiquidaciones
+    id="GLiquidaciones" 
+    [dataSource]="DLiquidaciones"
+    keyExpr="DOCUMENTO"
+    [showBorders]="true"
+    [allowColumnResizing]="true"
+    [rowAlternationEnabled]="true"
+    (onToolbarPreparing)="onToolbarPreparing($event)">
+
+    <dxo-filter-row 
+        [visible]="true"></dxo-filter-row>
+    <dxo-header-filter 
+        [visible]="true"></dxo-header-filter>
+    <dxo-search-panel 
+        [visible]="true" 
+        [width]="240" 
+        placeholder="Buscar..."></dxo-search-panel>
+
+    <dxo-paging 
+        [pageSize]="10">
+    </dxo-paging>
+    <dxo-pager 
+        [visible]="true" 
+        [allowedPageSizes]="allowedPageSizes" 
+        displayMode="full"
+        [showPageSizeSelector]="true" 
+        [showInfo]="true" 
+        [showNavigationButtons]="true">
+    </dxo-pager>
+
+    <dxo-selection mode="single"></dxo-selection>
+
+    <dxi-column dataField="DOCUMENTO" [width]="80" caption="Id Liquidación" cellTemplate="cellTplIrA"></dxi-column>
+    <dxi-column dataField="FECHA" [width]="110" caption="Fecha Generación" format="MMM dd yyyy"></dxi-column>
+    <dxi-column dataField="EMPLEADO" [width]="330" caption="Empleado" ></dxi-column>
+    <dxi-column dataField="PERIODO" caption="Periodo" ></dxi-column>
+    <dxi-column dataField="TIPO"  caption="Tipo" ></dxi-column>
+    <dxi-column dataField="FILTRO" caption="Filtro" ></dxi-column>
+    <dxi-column dataField="ID_APLICACION" caption="Apl" [visible]="false"></dxi-column>
+
+    <dxo-export [enabled]="true" fileName="{{archExcelLiq}}"></dxo-export>
+
+    <div *dxTemplate="let liqData of 'cellTplIrA'">
+        <a href="javascript:void(null);" (click)="IrALiquidacion(liqData.data.ID_APLICACION, liqData.data.TIPO)">{{liqData.value}}</a>
+    </div>
+
+    <div *dxTemplate="let data of 'titLiquidaciones'">
+        <div class="dx-fieldset-header">Últimas Liquidaciones</div>
+    </div>
+    
+</dx-data-grid>
+
+<dx-button
+    stylingMode="contained"
+    text="IMPRIMIR LIQUIDACION"
+    type="accept"
+    [width]="120"
+    (onClick)="imprimirLiquida($event)">
+</dx-button>
+
+<div class="card">
+    <p-dataView [value]="items" [paginator]="false" [rows]="9" layout="grid">
+        <ng-template let-item pTemplate="gridItem">
+            <div class="product-grid-item card">
+                <div class="p-col-12 p-md-4 h-100 cardliq">
+                    <p-card header="{{item.idliq}}" subheader="{{item.nomliq}}" [style]="{width: '360px'}" styleClass="p-card-shadow">
+                        <p>{{item.descliq}}</p>
+                        <ng-template pTemplate="footer">
+                            <p-button label="Generar" icon="pi pi-check" (onClick)="genLiq($event, item.idliq, item.nomliq)"></p-button>
+                        </ng-template>
+                    </p-card>
+                </div>
+            </div>
+    </ng-template>
+    </p-dataView>
+</div>
+

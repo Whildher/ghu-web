@@ -1,0 +1,19 @@
+<dx-data-grid
+    id="GFiltroReporte"
+    [dataSource]="DFiltro"
+    [columnAutoWidth]="true"
+    [showBorders]="true"
+    [allowColumnReordering]="true">
+    <dxi-column dataField="NombreCampo">
+    </dxi-column>
+    <dxi-column caption="Valores de Filtro">
+       <dxi-column
+            caption="Desde"
+            dataField="VDesde">
+       </dxi-column>
+       <dxi-column
+            caption="Hasta"
+            dataField="VHasta">
+       </dxi-column>
+    </dxi-column>
+</dx-data-grid>

@@ -1,0 +1,55 @@
+#panel-rep1 {
+	height: auto;
+	border: 1px solid #ddd;
+	background: #f1f1f1;
+	overflow-y: scroll;
+}
+::ng-deep #panel-rep > .dx-list .dx-list-item {
+    border-top: 0px solid #ddd;
+}
+::ng-deep #panel-rep > .dx-list .dx-list-item-content {
+    padding: 5px;
+}
+
+#panel-rep::-webkit-scrollbar {
+    display: none;
+}
+::ng-deep .dx-drawer > div > div.dx-drawer-panel-content {
+	overflow-y: scroll;
+    border-style: solid;
+    border-width: 1px;
+    border-color: powderblue;
+}
+::ng-deep div.dx-drawer-panel-content::-webkit-scrollbar { 
+    width: 0 !important;
+}
+
+::ng-deep .dx-list-group-header {
+    background-color: white;
+    border-top: 0px;
+    border-bottom: 0px;
+}
+::ng-deep .screen-large .responsive-paddings {
+    padding: 0px;
+}
+::ng-deep #toolrep {
+    position: -webkit-sticky; /* Safari & IE */
+    position: sticky;
+    top: 0;
+}
+::ng-deep #content {
+    height: 90vh;
+    overflow-y: scroll;
+}
+::ng-deep .content-block {
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-top: 0px;
+}
+
+::ng-deep p-breadcrumb > div > ul > li > a > span > a {
+    text-decoration: none;
+}
+::ng-deep .p-menuitem-text:hover {
+    text-decoration: underline;
+}

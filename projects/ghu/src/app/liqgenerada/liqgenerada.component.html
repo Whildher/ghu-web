@@ -1,0 +1,365 @@
+<p-toolbar>
+    <div class="p-toolbar-group-left">
+        <p-button icon="pi pi-home" class="p-mr-2" (click)="clickHome($event)"></p-button>
+        <h3>{{titLiquidacion}}</h3>
+    </div>
+    <div class="p-toolbar-group-right">
+        <p-button label="Consultas" icon="pi pi-search" (click)="clickBuscarLiq($event)"></p-button>
+        <p-button label="Nueva Liquidación" icon="pi pi-plus" (click)="clickNuevaLiq($event)"></p-button>
+        <p-splitButton label="Informes" icon="pi pi-print" [model]="itemsInformes" styleClass="p-button-success"></p-splitButton>
+    </div>
+</p-toolbar>
+
+<div id="divLiq" class="bodyliq">
+
+    <dx-form id="form"
+        [formData]="DFEmpleados"
+        [colCount]="2">
+        <dxi-item itemType="group">
+            <dxi-item itemType="group" cssClass="first-group" [colCount]="2" caption="Empleado">
+                <dxi-item dataField="ID_EMPLEADO" [editorOptions]="{ disabled: true }">
+                    <dxo-label text="Id Empleado" ></dxo-label>
+                </dxi-item>
+                <dxi-item dataField="NOMBRE_COMPLETO" [editorOptions]="{ disabled: true }" id="txtNombreEmp">
+                    <dxo-label text="Nombre" ></dxo-label>
+                </dxi-item>
+            </dxi-item>
+            <dxi-item itemType="group" cssClass="second-group" [colCount]="2" caption="Datos del contrato">
+                <dxi-item dataField="CONTRATO" [editorOptions]="{ disabled: true }">
+                    <dxo-label text="Nro Contrato"></dxo-label>
+                </dxi-item>
+                <dxi-item dataField="DIAS" [editorOptions]="{ disabled: true }">
+                    <dxo-label text="Días Contrato"></dxo-label>
+                </dxi-item>
+                <dxi-item dataField="FECHA_INICIAL"  [editorOptions]="{ disabled: true }" >
+                    <dxo-label text="Fecha Inicio"></dxo-label>
+                </dxi-item>
+                <dxi-item dataField="FECHA_FINAL"  [editorOptions]="{ disabled: true }" >
+                    <dxo-label text="Fecha Final"></dxo-label>
+                </dxi-item>
+                <dxi-item dataField="FECHA_INI_BASE"  [editorOptions]="{ disabled: true }" >
+                    <dxo-label text="Fecha Ini Base"></dxo-label>
+                </dxi-item>
+                <dxi-item dataField="FECHA_FIN_BASE"  [editorOptions]="{ disabled: true }" >
+                    <dxo-label text="Fecha Fin Base"></dxo-label>
+                </dxi-item>
+                <dxi-item dataField="ID_EMPRESA"  [editorOptions]="{ disabled: true }">
+                    <dxo-label text="Empresa"></dxo-label>
+                </dxi-item>
+                <dxi-item dataField="GRUPO"  [editorOptions]="{ disabled: true }">
+                    <dxo-label text="Grupo"></dxo-label>
+                </dxi-item>
+            </dxi-item>
+
+        </dxi-item>
+
+        <dxi-item itemType="group" cssClass="second-group" [colCount]="2" caption="Total Liquidado">
+            <dxi-item dataField="TVPRIMA" [label]="{text: 'Prima'}" editorType="dxNumberBox"
+                    [editorOptions]="{ disabled: true, format: '#,##0', inputAttr: { 'style' : 'text-align: right; '} }">
+            </dxi-item>
+            <dxi-item dataField="TDPRIMA" [label]="{text: 'Días'}" 
+                    [editorOptions]="{ disabled: true, format: '#,##0' }">
+            </dxi-item>
+            <dxi-item dataField="TVCES" editorType="dxNumberBox" [label]="{text: 'Cesantías'}" 
+                    [editorOptions]="{ disabled: true, format: '#,##0', inputAttr: { 'style' : 'text-align: right; '} }">
+            </dxi-item>
+            <dxi-item dataField="TDCES" [label]="{text: 'Días'}" 
+                    [editorOptions]="{ disabled: true, format: '#,##0' }">
+            </dxi-item>
+            <dxi-item dataField="TVINT"  editorType="dxNumberBox" [label]="{text: 'Int Cesantías'}"
+                    [editorOptions]="{ disabled: true, format: '#,##0', inputAttr: { 'style' : 'text-align: right; '} }">
+            </dxi-item>
+            <dxi-item dataField="TDINT" [label]="{text: 'Días'}" 
+                    [editorOptions]="{ disabled: true, format: '#,##0' }">
+            </dxi-item>
+            <dxi-item dataField="TVVAC" editorType="dxNumberBox" [label]="{text: 'Vacaciones'}"
+                    [editorOptions]="{ disabled: true, format: '#,##0', inputAttr: { 'style' : 'text-align: right; '} }">
+            </dxi-item>
+            <dxi-item dataField="TDVAC" [label]="{text: 'Días'}" 
+                    [editorOptions]="{ disabled: true, format: '#,##0' }">
+            </dxi-item>
+            <dxi-item dataField="TTOT" editorType="dxNumberBox" [label]="{text: 'Total'}" 
+                    [editorOptions]="{ disabled: true, format: '#,##0', 
+                                    inputAttr: { 'style' : 'background: paleturquoise; 
+                                                    font-weight: bold; font-size: 20px; text-align: right; '} }">
+            </dxi-item>
+        </dxi-item>
+
+    </dx-form>
+    <br>
+    <dx-button
+        stylingMode="contained"
+        text="Liquidar..."
+        type="success"
+        [width]="120"
+        (onClick)="clickLiquida($event)">
+    </dx-button>
+
+    <div *ngIf="!filtroMasivo">
+        <div class="titulo2">
+            <h3>Base histórica de liquidación</h3>
+        </div>
+
+        <dx-data-grid 
+            #GLiqOtros
+            [dataSource]="DLiquidaciones"
+            keyExpr="ID"
+            (onCellPrepared)="onCellPreparedNov($event)"
+            (onSelectionChanged)="onSelectionChangedNov($event)"
+            (onContentReady)="onContentReady($event)"
+            [showBorders]="true">
+
+            <dxo-selection 
+                mode="multiple" 
+                showCheckBoxesMode="always"
+                [allowSelectAll]="false"
+                >
+            </dxo-selection>
+            <dxi-column
+                type="selection"
+                headerCellTemplate="selectionHeaderCellTemplate">
+            </dxi-column>   
+
+            <dxi-column dataField="ID" [width]="50" caption="#" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="ID_CONCEPTO" [width]="150" caption="Concepto" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="FECHA_INICIAL" [width]="130" caption="Fecha Inicial" cssClass="clsEncabHis" dataType="date" format="yyyy-MMM-d"></dxi-column>
+            <dxi-column dataField="FECHA_FINAL" [width]="160" caption="Fecha Final" cssClass="clsEncabHis" dataType="date"></dxi-column>
+            <dxi-column dataField="DIAS"  [width]="160" caption="Días" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="VALOR" [width]="250" caption="Devengado" cssClass="clsEncabHis" alignment="right" format="#,###"></dxi-column>
+            <dxi-column dataField="SALARIO" [width]="250" caption="Salario" cssClass="clsEncabHis" alignment="right" format="#,###"></dxi-column>
+            <dxi-column></dxi-column>
+
+            <dxo-summary>
+                <dxi-total-item
+                    column="DIAS"
+                    summaryType="sum"
+                    displayFormat="Total dias: {0}"
+                    valueFormat="#,###">
+                </dxi-total-item>
+                <dxi-total-item
+                    column="VALOR"
+                    summaryType="sum"
+                    displayFormat="Total: {0}"
+                    valueFormat="#,###">
+                </dxi-total-item>
+            </dxo-summary>
+            <dxo-export [enabled]="true" fileName="{{archExcelLiqHis}}"></dxo-export>
+
+            <div *dxTemplate="let headerInfo of 'selectionHeaderCellTemplate'">
+                <dx-check-box [value]="false" style="margin-top: 5px;"
+                              (onValueChanged)="onValueChangedTodo($event)">
+                </dx-check-box>
+            </div>
+         
+        </dx-data-grid>
+    </div>
+
+    <div class="titulo2">
+        <h3>Liquidación de prestaciones</h3>
+    </div>
+
+    <!-- NOVEDADES -->
+    <dx-data-grid 
+        id="GNovedades"
+        [dataSource]="DNovedades"
+        keyExpr="ID_EMPLEADO"
+        [allowColumnReordering]="true"
+        [showBorders]="true"
+        (onEditorPreparing)="onEditorPreparingNov($event)"
+        (onToolbarPreparing)="onToolbarPreparingNov($event)"
+        (onInitNewRow)="onInitNewRowNov($event)">
+        
+        <dxo-paging [enabled]="true"></dxo-paging>
+        <dxo-editing 
+            mode="row"
+            [allowUpdating]="true"
+            [allowDeleting]="true"
+            [allowAdding]="true">
+        </dxo-editing>
+        <dxo-selection  
+            mode="multiple">
+        </dxo-selection>  
+
+        <dxi-column dataField="ID_EMPLEADO" caption="Id Empleado" [allowEditing]="false" [width]="150" cssClass="clsEncabHis"></dxi-column>
+        <dxi-column dataField="NOMBRE_COMPLETO" caption="Nombre" [allowEditing]="false" [width]="350" cssClass="clsEncabHis"></dxi-column>
+        <dxi-column dataField="FECHA_DESDE" caption="Fecha" [setCellValue]="setCellFDesde" [width]="350" dataType="date">
+        </dxi-column>
+        <dxi-column dataField="FECHA_HASTA" caption="Fecha" [width]="350" dataType="date">
+        </dxi-column>
+        <dxi-column
+            dataField="ID_CONCEPTO"
+            caption="Concepto"
+            cssClass="clsEncabHis"
+            [width]="250"
+            editCellTemplate="singleDropDownBoxEditor">         
+            <dxo-lookup
+                [dataSource]="GLConceptos"
+                displayExpr="ID_CONCEPTO"
+                valueExpr="ID_CONCEPTO">
+            </dxo-lookup>
+        </dxi-column>
+        <dxi-column dataField="VALOR" caption="Valor" [width]="150" cssClass="clsEncabHis"></dxi-column>
+
+        <div *dxTemplate="let data of 'titNovedades'">
+            <div class="dx-fieldset-header">Novedades</div>
+        </div>
+
+        <div *dxTemplate="let cellInfo of 'singleDropDownBoxEditor'">
+            <dx-drop-down-box
+                #ddLConceptos
+                [dropDownOptions]="dropDownOptions"
+                [dataSource]="GLConceptos"
+                [(value)]="cellInfo.value"
+                displayExpr="ID_CONCEPTO"
+                valueExpr="ID_CONCEPTO"
+                [deferRendering]="false"
+                placeholder="Concepto de nomina..."
+                [showClearButton]="true"
+                contentTemplate="contentTemplate"
+                >
+
+            <div *dxTemplate="let data of 'contentTemplate'">
+                <dx-data-grid
+                        #GListaEmple
+                        keyExpr="ID_CONCEPTO"
+                        [dataSource]="GLConceptos"
+                        [hoverStateEnabled]="true"
+                        height="100%"
+                        [columns]="gridColConceptos"
+                        [selectedRowKeys]="[cellInfo.value]"
+                        [focusedRowEnabled]="true"
+                        [focusedRowKey]="cellInfo.value"
+                        (onSelectionChanged)="onSelectionChanged($event.selectedRowKeys, cellInfo, data.component)"
+                >
+                    <dxo-selection mode="single"></dxo-selection>
+                    <dxo-scrolling mode="virtual"></dxo-scrolling>
+                    <dxo-search-panel [visible]="true"></dxo-search-panel>
+                    <dxo-paging [enabled]="true" [pageSize]="10"></dxo-paging>
+                </dx-data-grid>
+            </div>
+            </dx-drop-down-box>
+        </div>
+
+    </dx-data-grid>
+
+    <!-- Cuando es individual x empleado -->
+    <div *ngIf="!filtroMasivo"> 
+        <dx-data-grid 
+            #GLiqPrestaciones
+            id="GLiqPrestaciones" 
+            [dataSource]="DPrestaciones"
+            keyExpr="ITEM"
+            [showBorders]="true"
+            [rowAlternationEnabled]="true"
+            (onEditingStart)="onEditingStartLiqInd($event)"
+            (onRowPrepared)="onRowPreparedLiqInd($event)"
+            (onInitialized)="onIniciarLiqPres($event)">
+
+            <dxo-selection mode="single"></dxo-selection>
+
+            <dxi-column dataField="CONCEPTO" [allowEditing]="false" [width]="250" caption="Concepto" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column *ngIf="this.elemActivos.Primas || this.elemActivos.Contrato" [setCellValue]="setCellPrima" cssClass="clsEncabHis" dataField="PRIMA" [width]="130" caption="Prima" alignment="right" format="#,##0" [editorOptions]="{ format: '0'}" ></dxi-column>
+            <dxi-column *ngIf="this.elemActivos.Cesantias || this.elemActivos.Contrato" [setCellValue]="setCellCesantias" cssClass="clsEncabHis" dataField="CESANTIAS" [width]="160" caption="Cesantías" alignment="right" format="#,##0" [editorOptions]="{ format: '0'}" ></dxi-column>
+            <dxi-column *ngIf="this.elemActivos.IntCesantias || this.elemActivos.Contrato" [setCellValue]="setCellInt" cssClass="clsEncabHis" dataField="INTERESES"  [width]="160" caption="Int Cesantías" alignment="right" format="#,##0" [editorOptions]="{ format: '0'}" ></dxi-column>
+            <dxi-column *ngIf="this.elemActivos.Vacaciones || this.elemActivos.Contrato" [setCellValue]="setCellVacaciones" cssClass="clsEncabHis" dataField="VACACIONES" [width]="250" caption="Vacaciones" alignment="right" format="#,##0" [editorOptions]="{ format: '0'}" ></dxi-column>
+            <dxi-column cssClass="clsEncabHis"></dxi-column>
+
+            <dxo-editing 
+                mode="cell"
+                [allowUpdating]="true">
+            </dxo-editing>
+            <dxo-export [enabled]="true" fileName="{{archExcelLiq}}"></dxo-export>
+
+        </dx-data-grid>
+
+        <dx-form id="formTotal" style="margin-top: 10px;">
+            <dxi-item itemType="group" [colSpan]="1">
+                <dxi-item cssClass="clsTitulo4">
+                    <dxo-label text="TOTAL LIQUIDADO" ></dxo-label>
+                    <dx-text-box [(value)]="TotalLiquidacion" 
+                                [readOnly]="true" 
+                                style="width: 200px; margin-left: 30px; border: 1px solid #495a6b; " 
+                                [inputAttr]="{class: 'totLiqStyle'}">
+                    </dx-text-box>
+                </dxi-item>
+            </dxi-item>
+        </dx-form>
+    </div> 
+
+    <!-- Cuando es filtro masivo -->
+    <div *ngIf="filtroMasivo">
+        <dx-data-grid 
+            #GLiqPrestMasiva
+            id="GLiqPrestMasiva" 
+            [dataSource]="DPrestMasiva"
+            keyExpr="ITEM"
+            [showBorders]="true"
+            [rowAlternationEnabled]="true"
+            (onKeyDown)="onKeyDown($event)"
+            (onFocusedCellChanged)="onFocusedCellChanged($event)"
+            (onRowUpdating)="updateRow($event)"
+            (onToolbarPreparing)="onToolbarPreparing($event)"
+            (onCellPrepared)="onCellPrepared($event)">
+
+            <dxo-selection mode="single"></dxo-selection>
+            <dxo-search-panel [visible]="true"></dxo-search-panel>
+
+            <dxi-column dataField="ID_EMPLEADO" [allowEditing]="false" [width]="150" caption="Id Empleado" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="NOMBRE_COMPLETO" [allowEditing]="false" [width]="300" caption="Nombre" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="BASICO" [allowEditing]="false" [width]="160" caption="Básico" alignment="right" format="#,###" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="TRANSPORTE" [allowEditing]="false" [width]="160" caption="Transporte" alignment="right" format="#,###" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="BASE" [setCellValue]="setCellBase" [width]="160" caption="Base" alignment="right" format="#,###" cssClass="clsEncabHis clsCellModif"></dxi-column>
+            <dxi-column dataField="DIAS" [setCellValue]="setCellDias" [width]="160" caption="Días" alignment="right" format="#,###" cssClass="clsEncabHis clsCellModif"></dxi-column>
+            <dxi-column dataField="TOTAL" [allowEditing]="false" [width]="160" caption="Total" alignment="right" format="#,###" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column cssClass="clsEncabHis"></dxi-column>
+
+            <dxo-editing 
+                mode="cell"
+                [allowUpdating]="true">
+            </dxo-editing>
+            <dxo-export [enabled]="true" fileName="{{archExcelLiq}}"></dxo-export>
+
+        </dx-data-grid>
+
+    </div>
+
+    <br>
+    <dx-button
+        stylingMode="contained"
+        text="GUARDAR LIQUIDACION"
+        type="success"
+        [width]="120"
+        (onClick)="clickLiquida($event)">
+    </dx-button>
+    <dx-button
+        stylingMode="contained"
+        text="IMPRIMIR LIQUIDACION"
+        type="accept"
+        [width]="120"
+        (onClick)="imprimirLiquida($event)">
+    </dx-button>
+
+</div>
+
+<dx-load-panel
+    #loadPanel
+    shadingColor="rgba(0,0,0,0.4)"
+    [position]="{ of: '#divLiq' }"
+    [(visible)]="loadingVisible"
+    [showIndicator]="true"
+    [showPane]="true"
+    [shading]="true"
+    message="Liquidando, por favor esperar..."
+    [closeOnOutsideClick]="false"
+    (onShown)="onShown()"
+    (onHidden)="onHidden()">
+</dx-load-panel>
+
+<p-dialog header="{{errTit}}" [(visible)]="displayModal" [modal]="true" [style]="{width: '35vw'}" [baseZIndex]="10000"
+    [draggable]="false" [resizable]="false">
+        <div [innerHTML]="errMsg"></div>
+        <ng-template pTemplate="footer">
+        <p-button icon="pi pi-check" (click)="displayModal=false" label="Ok" styleClass="p-button-text"></p-button>
+        </ng-template>
+</p-dialog>
+<app-popvisor></app-popvisor>

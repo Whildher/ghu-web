@@ -1,0 +1,56 @@
+::ng-deep #diagram1 > div.dx-overlay-wrapper.dx-diagram-properties-popup.dx-diagram-mobile-popup.dx-popup-wrapper > div {
+    width: 700px !important;
+}
+::ng-deep #diagram {
+    height: calc(100vh - 50px);
+    overflow: auto;
+}
+
+::ng-deep .dx-field-item {
+    font-size: 16px;
+}
+::ng-deep #form {
+    margin-bottom: 8px;
+}
+::ng-deep #splitterMain {
+    height: calc(100vh - 50px);
+    overflow: auto;
+} 
+::ng-deep .pi {
+    font-size: 1.3rem;
+} 
+::ng-deep .p-toolbar {
+    padding: 0.2rem;
+} 
+::ng-deep  .dx-state-readonly .dx-widget, .dx-state-readonly.dx-widget {
+    border-style: solid;
+}
+::ng-deep .dx-state-readonly.dx-widget {
+    border-style: solid;
+}
+::ng-deep .dx-treelist-headers .dx-treelist-table .dx-row > td {
+    font-size: 16px;
+    background-color: aliceblue;
+}
+::ng-deep .dx-checkbox.dx-checkbox-checked.dx-state-disabled .dx-checkbox-icon {
+    background-color: #e91e63;
+}
+::ng-deep #seccionesrutasdp > div > div.dx-treelist-header-panel > div > div {
+    height: 40px;
+}
+
+/* PopUp Layouts de Planta */
+::ng-deep #secciones {
+    height: calc(100vh - 310px);
+}
+::ng-deep div.dx-popup-content {
+    padding: 5px;
+}
+::ng-deep #secciones .dx-row{
+    height: 50px;
+    padding: 0;
+}
+::ng-deep .dx-treelist-checkbox-size .dx-checkbox-icon {
+    border-color: coral;
+}
+

@@ -1,0 +1,238 @@
+<app-menuregistro></app-menuregistro>
+
+<dx-form #FRutasPartes 
+    id="FRutasPartes" 
+    labelLocation="top" 
+    [formData]="DataRutasPartes"
+    [colCountByScreen]="colCountByScreen" 
+    [readOnly]="ReadOnlyEncabRP" 
+    (onFieldDataChanged)="CambioDatosForma($event)">
+
+    <dxi-item dataField="ID_RUTA" editorType="dxTextBox">
+        <dxo-label text="Id Ruta"></dxo-label>
+        <dxi-validation-rule type="async" message="existencia" [validationCallback]="ValideExistencia">
+        </dxi-validation-rule>
+    </dxi-item>
+    <dxi-item dataField="DESCRIPCION">
+        <dxo-label text="Descripción"></dxo-label>
+    </dxi-item>
+    <dxi-item dataField="ESTADO" editorType="dxSelectBox">
+        <dxo-label text="Estado"></dxo-label>
+        <div *dxTemplate>
+            <dx-select-box [dataSource]="dSBEstados" displayExpr="ESTADO" valueExpr="ESTADO"
+                [value]="DataRutasPartes.ESTADO" [readOnly]="ReadOnlyEncabRP" (onValueChanged)="onSeleccEstado($event)">
+            </dx-select-box>
+        </div>
+    </dxi-item>
+    <dxi-item dataField="PRIORIDAD" editorType="dxSelectBox">
+        <dxo-label text="Prioridad"></dxo-label>
+        <div *dxTemplate>
+            <dx-select-box [dataSource]="dSBPrioridades" displayExpr="PRIORIDAD" valueExpr="PRIORIDAD"
+                [value]="DataRutasPartes.PRIORIDAD" [readOnly]="ReadOnlyEncabRP"
+                (onValueChanged)="onSeleccPrioridad($event)">
+            </dx-select-box>
+        </div>
+    </dxi-item>
+    <dxi-item dataField="LAYOUT_DP" editorType="dx-drop-down-box">
+        <dxo-label text="Layouts"></dxo-label>
+        <div *dxTemplate id="tplLay">
+            <dx-drop-down-box 
+                #ddBox 
+                [(value)]="GValorLayout" 
+                [dropDownOptions]="dropDownOptions"
+                [displayExpr]='DataRutasPartes.LAYOUT_DP'
+                [placeholder]="DataRutasPartes.LAYOUT_DP" 
+                [showClearButton]="true" 
+                [dataSource]="GDatosLayoutDP"
+                [readOnly]="ReadOnlyEncabRP" >
+
+            <div *dxTemplate="let data of 'content'">
+                <dx-data-grid #GDatosDP
+                        id="GDatosDP"
+                        [dataSource]="GDatosLayoutDP"
+                        [columns]="['ID_RUTA', 'DESCRIPCION']"
+                        [selection]="{ mode: 'multiple' }"
+                        [hoverStateEnabled]="true"
+                        [paging]="{ enabled: true, pageSize: 10 }"
+                        [scrolling]="{ mode: 'infinite' }"
+                        [filterRow]="{ visible: false }"
+                        [height]="345"
+                        [showBorders]="true"
+                        width="100%"
+                        [(selectedRowKeys)]="GValorLayout"
+                        (onSelectionChanged)="onSelectionChanged($event, ddBox.instance)" 
+                >
+                <dxo-search-panel 
+                    [visible]="true" 
+                    [width]="240" 
+                    placeholder="Buscar...">
+                </dxo-search-panel>
+                </dx-data-grid>
+                <dx-button
+                    id="btnCerrarLDP"
+                    stylingMode="contained"
+                    text="Cerrar"
+                    type="accept"
+                    [width]="120"
+                    (onClick)="cerrarListaDP($event)">
+                </dx-button>
+        
+            </div>
+            </dx-drop-down-box>
+        </div>
+    </dxi-item>
+</dx-form>
+
+<p-toolbar>
+    <div class="p-toolbar-group-left">
+        <p-button icon="pi pi-sitemap" styleClass="p-button-text p-mr-2" (click)="clickLay('original')"></p-button>
+        <p-button icon="pi pi-star-o" styleClass="p-button-text p-mr-2" (click)="clickLay('nuevo')"></p-button>
+        <p-button icon="pi pi-sun" styleClass="p-button-text p-mr-2" (click)="clickLay('ruta')"></p-button>
+    </div>
+</p-toolbar>
+
+<!-- *** DIAGRAMA DE VISUALIZACION *** -->
+<div>            
+
+    <dx-diagram 
+        #diagPartes 
+        id="diagPartes" 
+        [readOnly]="diagReadOnly" 
+        units="px" 
+        viewunits="px"
+        pageOrientation="landscape"
+        (onContentReady)="onContentReady($event)"
+        (onOptionChanged)="onOptionChanged($event)"
+        (onRequestEditOperation)="requestEditOperationHandler($event)" 
+        (onRequestLayoutUpdate)="requestLayoutUpdateHandler($event)"
+        (onItemClick)="onItemClick($event)"
+        (onItemDblClick)="onItemDblClick($event)">
+
+        <dxi-custom-shape *ngFor="let svgId of NodosSvg; let i = index"
+            category="produccion"
+            [type]="svgId.id"
+            title="proceso"
+            [backgroundImageUrl]="svgId.svg"
+            [backgroundImageToolboxUrl]="svgId.svg" 
+            [defaultWidth]="100"
+            [defaultHeight]="60"
+            defaultText=""
+            [allowEditText]="false"
+            [allowEditImage]="true"
+            [textWidth]="1">
+            <dxi-connection-point [x]="0.5" [y]="0"></dxi-connection-point>
+            <dxi-connection-point [x]="1" [y]="0.5"></dxi-connection-point>
+            <dxi-connection-point [x]="0.5" [y]="1"></dxi-connection-point>
+            <dxi-connection-point [x]="0" [y]="0.5"></dxi-connection-point>
+        </dxi-custom-shape>
+
+        <dxo-nodes [dataSource]="seccNodosDataSource" keyExpr="id" textExpr="text" 
+                typeExpr="type" leftExpr="x" topExpr="y" widthExpr="width" 
+                heightExpr="height"
+                textStyleExpr="textStyle" [styleExpr]="itemStyleExpr"
+                containerKeyExpr="contenedor" lockedExpr="bloqSeccion">
+            <dxo-auto-layout type="off"></dxo-auto-layout>
+        </dxo-nodes>
+        <dxo-edges [dataSource]="seccConecDataSource" keyExpr="id" fromExpr="fromId" 
+                toExpr="toId" textExpr="text" styleExpr="conecStyle"
+                fromPointIndexExpr="fromPoint" toPointIndexExpr="toPoint" lockedExpr="bloqConn">
+        </dxo-edges>
+        <dxo-toolbox>
+            <dxi-group category="general" title="General"></dxi-group>
+            <dxi-group category="produccion" title="Producción"></dxi-group>
+            <dxi-group category="containers" title="Containers"></dxi-group>
+        </dxo-toolbox>
+
+        <dxo-context-menu [enabled]="false">
+        </dxo-context-menu>
+        
+    </dx-diagram>
+    
+</div>
+
+<div>
+    <dx-context-menu
+        [dataSource]="itemsMenuDiag"
+        [width]="250"
+        target=".shape"
+        [(visible)]="menuDiagVisible"
+        [closeOnOutsideClick]="true"
+        (onShowing)="onMostrarMenuDiag($event)"
+        (onItemClick)="contextMenuItemClick($event)">
+    </dx-context-menu>
+</div>
+
+<app-popvisor></app-popvisor>
+
+<!--
+<dx-popup
+    [(title)]="popupMode"
+    [closeOnOutsideClick]="true"
+    [(visible)]="popupVisible"
+    [dragEnabled]="true"
+    [resizeEnabled]="true"
+    >
+    <dxi-toolbar-item 
+        widget="dxButton"
+        location="after"
+        toolbar="bottom"
+        [options]="{ 
+            text: 'Aceptar', 
+            type: 'success',
+            onClick: confirmClick 
+        }">
+    </dxi-toolbar-item>
+    <dxi-toolbar-item 
+        widget="dxButton"
+        location="after"
+        toolbar="bottom"
+        [options]="{ 
+            text: 'Cancelar',
+            onClick: cancelClick 
+        }">
+    </dxi-toolbar-item>
+            
+    <div *dxTemplate="let data of 'content'">
+        <div *ngIf="ModoPopUp == 'treelist'" class="flex-grow-1 min-h-0" style="height: 100%;">
+            <dx-tree-list #secciones
+                id="secciones"
+                [dataSource]="DatosSecciones"
+                keyExpr="ITEM"
+                parentIdExpr="ANTERIOR"
+                [showRowLines]="true"
+                [showBorders]="true"
+                [columnAutoWidth]="true"
+                [expandedRowKeys]="[1]"
+                (onCellPrepared)="onCellPreparedLP($event)"
+                [autoExpandAll]="true"
+                (onSelectionChanged)="onSeleccNodo($event)"
+                [(selectedRowKeys)]="SelNodoLP"
+                >
+                <dxo-selection mode="multiple"></dxo-selection>
+                <dxo-scrolling mode="standard"></dxo-scrolling>
+                <dxo-search-panel [visible]="true"></dxo-search-panel>
+                <dxi-column dataField="ID_SECCION" caption="Id Sección" ></dxi-column>
+                <dxi-column dataField="DESCRIPCION" caption="Descripción"></dxi-column>
+            </dx-tree-list>
+        </div>
+    </div>
+</dx-popup>
+-->
+
+<p-confirmDialog #cd [style]="{width: '50vw'}" [baseZIndex]="10000" >
+    <ng-template pTemplate="footer">
+        <button type="button" pButton icon="pi pi-times" label="No" (click)="cd.reject()"></button>
+        <button type="button" pButton icon="pi pi-check" label="Sí" (click)="cd.accept()"></button>
+    </ng-template>
+</p-confirmDialog>
+
+<!--
+<g class="shape locked" data-type="8" data-key="1">
+    <rect x="50" y="50" width="100" height="60" transform="" style="stroke: rgb(230, 224, 224);">
+    </rect>
+    <text x="100" y="80" appliedText="10014 Rectificado¬10014¬" appliedSize="1200" style="fill: rgb(230, 224, 224);">
+        <tspan x="100" dy="-0.15em">10014</tspan>
+        <tspan x="100" dy="1.05em">Rectificado¬10014¬</tspan>
+    </text>
+</g>
+-->

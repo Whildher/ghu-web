@@ -1,0 +1,166 @@
+<app-menuregistro></app-menuregistro>
+<div id="splitterMain">
+
+    <as-split direction="horizontal" (dragEnd)="dragEnd('percent', $event)" #split="asSplit">
+        <as-split-area [size]="40" >
+
+            <!-- *** ENCABEZADO *** -->
+            <dx-form id="form"
+                labelLocation="top"
+                [formData]="DataDistriPlanta"
+                [colCountByScreen]="colCountByScreen"
+                [readOnly]="ReadOnlyEncabDP"
+                >
+                <dxi-item dataField="ID_RUTA">
+                    <dxo-label text="Id Ruta"></dxo-label>
+                    <dxi-validation-rule type="async" message="existencia" [validationCallback]="ValideExistencia">
+                    </dxi-validation-rule>
+                </dxi-item> 
+                <dxi-item dataField="DESCRIPCION"><dxo-label text="Descripción"></dxo-label></dxi-item> 
+                <dxi-item dataField="ESTADO" editorType="dxSelectBox" >
+                    <dxo-label text="Estado"></dxo-label>
+                    <dx-select-box
+                        [dataSource]="dSBEstados"
+                        displayExpr="ESTADO"
+                        valueExpr="ESTADO"
+                        [value]="DataDistriPlanta.ESTADO"
+                        [readOnly]="ReadOnlyEncabDP" >
+                    </dx-select-box>
+                </dxi-item>
+            </dx-form>
+
+            <!-- *** SECCIONES A ESCOGER *** -->
+            <dx-tree-list
+                id="seccionesrutasdp"
+                [dataSource]="DatosSeccRutasDP"
+                keyExpr="ITEM"
+                parentIdExpr="ANTERIOR"
+                [showBorders]="true"
+                [columnAutoWidth]="true"
+                [expandedRowKeys]="[1]"
+                (onCellPrepared)="onCellPrepared($event)"
+                (onContentReady)="onContentReady($event)"
+                (onSelectionChanged)="selecSeccion($event)"
+                (onToolbarPreparing)="onToolbarPreparing($event)"
+                [autoExpandAll]="true">
+                <dxo-scrolling mode="standard"></dxo-scrolling>
+                <dxo-search-panel [visible]="true"></dxo-search-panel>
+                <dxo-header-filter [visible]="true"></dxo-header-filter>  
+                <dxo-selection  
+                        mode="multiple"  
+                        [recursive]="seleccRecur">  
+                </dxo-selection>  
+                <dxi-column dataField="ID_SECCION" caption="Id Sección" ></dxi-column>
+                <dxi-column dataField="DESCRIPCION" caption="Descripción" ></dxi-column>
+                <dxi-column dataField="IsActive" [visible]="false"></dxi-column>
+                
+                <div *dxTemplate="let info of 'cfgEncabezado'">
+                    <p style="font-size:16px">{{info.column.caption}}</p>
+                </div>
+            </dx-tree-list>
+        </as-split-area>
+
+        <as-split-area [size]="60" >
+            <dx-scroll-view #scrollView
+                id="scrollview"
+                reachBottomText="Updating...">
+
+                <!-- *** DIAGRAMA DE VISUALIZACION *** -->
+                <div class="demo-container" style="width: 100%; height: 100%;">            
+                    <dx-diagram #diagram id="diagram" (initialized)="onIniDiagrama($event)" units="px" viewunits="px" 
+                                [readOnly]="diagReadOnly" (onOptionChanged)="diagramCambios($event)">
+                        <dxi-custom-shape *ngFor="let svgId of NodosSvg; let i = index"
+                            category="produccion"
+                            [type]="svgId.id"
+                            title="proceso"
+                            [backgroundImageUrl]="svgId.svg"
+                            [backgroundImageToolboxUrl]="svgId.svg"
+                            [defaultWidth]="100"
+                            [defaultHeight]="60"
+                            defaultText=""
+                            [allowEditText]="false"
+                            [textWidth]="1">
+                            <dxi-connection-point [x]="0.5" [y]="0"></dxi-connection-point>
+                            <dxi-connection-point [x]="1" [y]="0.5"></dxi-connection-point>
+                            <dxi-connection-point [x]="0.5" [y]="1"></dxi-connection-point>
+                            <dxi-connection-point [x]="0" [y]="0.5"></dxi-connection-point>
+                        </dxi-custom-shape>
+                        <dxo-nodes [dataSource]="seccNodosDataSource" keyExpr="id" textExpr="text" typeExpr="type"  leftExpr="x" topExpr="y">
+                            <dxo-auto-layout type="off"></dxo-auto-layout>
+                        </dxo-nodes>
+                        <dxo-edges [dataSource]="seccConecDataSource" keyExpr="id" fromExpr="fromId" toExpr="toId" textExpr="text"
+                                   fromPointIndexExpr="fromPoint" toPointIndexExpr="toPoint">
+                        </dxo-edges>
+                        <dxo-toolbox>
+                            <dxi-group category="general" title="General"></dxi-group>
+                            <dxi-group category="produccion" title="Producción"></dxi-group>
+                        </dxo-toolbox>
+                    </dx-diagram>
+                </div>
+            </dx-scroll-view>
+
+        </as-split-area>
+    </as-split>
+</div>
+
+<app-popvisor></app-popvisor>
+
+<dx-popup
+    [(title)]="popupMode"
+    [closeOnOutsideClick]="true"
+    [(visible)]="popupVisible"
+    [dragEnabled]="true"
+    [resizeEnabled]="true"
+    >
+    <dxi-toolbar-item 
+        widget="dxButton"
+        location="after"
+        toolbar="bottom"
+        [options]="{ 
+            text: 'Aceptar', 
+            type: 'success',
+            onClick: confirmClick 
+        }">
+    </dxi-toolbar-item>
+    <dxi-toolbar-item 
+        widget="dxButton"
+        location="after"
+        toolbar="bottom"
+        [options]="{ 
+            text: 'Cancelar',
+            onClick: cancelClick 
+        }">
+    </dxi-toolbar-item>
+            
+    <div *dxTemplate="let data of 'content'">
+        <div *ngIf="ModoPopUp == 'treelist'" class="flex-grow-1 min-h-0" style="height: 100%;">
+            <dx-tree-list #secciones
+                id="secciones"
+                [dataSource]="DatosSecciones"
+                keyExpr="ITEM"
+                parentIdExpr="ANTERIOR"
+                [showRowLines]="true"
+                [showBorders]="true"
+                [columnAutoWidth]="true"
+                [expandedRowKeys]="[1]"
+                (onCellPrepared)="onCellPreparedLP($event)"
+                [autoExpandAll]="true"
+                (onSelectionChanged)="onSeleccNodo($event)"
+                [(selectedRowKeys)]="SelNodoLP"
+                >
+                <dxo-selection mode="multiple"></dxo-selection>
+                <dxo-scrolling mode="standard"></dxo-scrolling>
+                <dxo-search-panel [visible]="true"></dxo-search-panel>
+                <dxi-column dataField="ID_SECCION" caption="Id Sección" ></dxi-column>
+                <dxi-column dataField="DESCRIPCION" caption="Descripción"></dxi-column>
+            </dx-tree-list>
+        </div>
+    </div>
+</dx-popup>
+
+<p-confirmDialog #cd [style]="{width: '50vw'}" [baseZIndex]="10000" >
+    <ng-template pTemplate="footer">
+        <button type="button" pButton icon="pi pi-times" label="No" (click)="cd.reject()"></button>
+        <button type="button" pButton icon="pi pi-check" label="Sí" (click)="cd.accept()"></button>
+    </ng-template>
+</p-confirmDialog>

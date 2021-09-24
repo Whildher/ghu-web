@@ -1,0 +1,50 @@
+<div class="list-container">
+    <dx-list
+        #listarepapl
+        [dataSource]="reportes"
+        [grouped]="true"
+        [collapsibleGroups]="false">
+        <div *dxTemplate="let item of 'group'" id="sencabrepapl">
+            <div>{{item.key}}</div>
+        </div>
+        <div *dxTemplate="let item of 'item'">
+            <div class="imgreporte">
+                <img src="assets/report.png" style="height: 50px; width: 50px;" />
+                <div>{{item.text}}</div>
+                <div class="descreporte">
+                    <div class="inforeporte">
+                        {{item.DESCRIPCION}}
+                    </div>
+                    <div>
+                        <dx-button
+                            #btnver
+                            stylingMode="contained"
+                            text="Ver"
+                            type="success"
+                            [width]="90"
+                            [height]="30"
+                            (onClick)="IrAVerReporte($event,item.ID_REPORTE,item.text)">
+                        </dx-button>
+                        <dx-button
+                            #btnexportar
+                            stylingMode="contained"
+                            text="Exportar"
+                            type="default"
+                            [width]="90"
+                            [height]="30">
+                        </dx-button>
+                        <dx-button
+                            #btnfiltro
+                            stylingMode="contained"
+                            text="Filtro"
+                            type="normal"
+                            [width]="90"
+                            [height]="30"
+                            (onClick)="IrAFiltro($event,item.ID_REPORTE,item.text)">
+                        </dx-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dx-list>
+</div>

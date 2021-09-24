@@ -1,0 +1,15 @@
+::ng-deep #GVisor {
+    height: 250px;
+}
+/*
+::ng-deep #dataGrid > div > div.dx-datagrid-header-panel > div > div {
+    height: 40px;
+}*/
+::ng-deep div.dx-popup-content {
+    padding: 5px;
+}
+
+::ng-deep #GVisor .dx-row{
+    height: 50px;
+    padding: 0;
+  }

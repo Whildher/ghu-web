@@ -1,0 +1,59 @@
+::ng-deep app-repaplicacion .dx-list-group-header {
+    background-color: rgb(243, 229, 147) !important;
+}
+::ng-deep .imgreporte {
+    height: auto;
+}
+::ng-deep .imgreporte > img {
+    height: 100%;
+    width: 95px;
+    float: left;
+}
+::ng-deep .imgreporte > div {
+    position: absolute;
+    padding-left: 10px;
+    margin-top: 10px;
+    margin-left: 50px;
+    vertical-align: top;
+    line-height: 15px;
+    font-size: 18px;
+    float: left;
+}
+::ng-deep .imgreporte > div.descreporte {
+    position: absolute;
+    margin-top: 25px;
+    margin-left: 50px;
+    float: left;
+    font-size: 12px;
+    height: auto;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+    display: contents;
+}
+::ng-deep .inforeporte {
+    padding-top: 30px;
+    padding-left: 56px;
+}
+::ng-deep div.descreporte > div > dx-button.dx-button.dx-button-success {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+::ng-deep div.descreporte > div > dx-button.dx-button.dx-button-default {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+::ng-deep div.descreporte > div > dx-button.dx-button.dx-button-normal {
+    margin-top: 10px;
+    margin-left: 10px;
+}
+::ng-deep div.descreporte > div > .dx-button-has-text .dx-button-content {
+    padding-top: 4px;
+}
+::ng-deep #sencabrepapl {
+    font-style: italic;
+    font-size: 16px;
+}

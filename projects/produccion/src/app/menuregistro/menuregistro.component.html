@@ -1,0 +1,61 @@
+<!--
+<dx-menu [items]="menuItems" itemTemplate="items">
+
+    <div *dxTemplate="let item of 'items'; let i = index">
+        <i id="{{item.name}}" *ngIf="item.name != 'NumReg' && item.name != 'TotReg' && item.uso" class="{{item.icon}}"
+            (mouseenter)="toggleDefault(i)" (mouseleave)="toggleDefault(i)"
+            (click)="onClickMenuReg(item.name)"></i>
+        <dx-text-box *ngIf="item.name === 'NumReg' && item.uso" style="top: -5px;" [(value)]="BNumReg" [width]="50"
+            [height]="30" [stylingMode]="stylingMode">
+        </dx-text-box>
+
+        <div *ngIf="item.name === 'TotReg' && item.uso">
+            <label style="top: -5px; padding: 0px 0px 0px 1px; font-size: 16px; ">{{BTotReg}}</label>
+        </div>
+
+        <dx-tooltip *ngIf="item.name != 'NumReg' && item.name != 'TotReg' && item.uso" target="#{{item.name}}"
+            [(visible)]="defaultVisible[i]" [closeOnOutsideClick]="false">
+            <div *dxTemplate="let data = data of 'content'">
+                {{item.name}}
+                <p>Ejecuta acciones sobre este botón</p>
+                <a href="">Mas info...</a>
+            </div>
+        </dx-tooltip>
+
+    </div>
+</dx-menu>
+-->
+
+<p-toolbar>
+    <div class="p-toolbar-group-left">
+        <div *ngFor="let item of menuItems; let i = index">
+            <p-button 
+                id="{{item.name}}"
+                *ngIf="item.name != 'NumReg' && item.name != 'TotReg' && item.uso && item.visible"
+                [icon]="item.icon" 
+                class="p-mr-2" 
+                styleClass="p-button-text"
+                (click)="onClickMenuReg(item.name)">
+            </p-button>
+
+            <input 
+                type="text" 
+                pInputText 
+                *ngIf="item.name === 'NumReg' && item.uso && item.visible"
+                class="p-inputtext-sm" 
+                placeholder="Small"
+                [(ngModel)]="BNumReg"> 
+
+            <p-button 
+                id="{{item.name}}"
+                *ngIf="item.name === 'TotReg' && item.uso && item.visible"
+                class="p-mr-2" 
+                [label]="BTotReg"
+                styleClass="p-button-text">
+            </p-button>
+
+        </div>
+
+    </div>
+</p-toolbar>
+

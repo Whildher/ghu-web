@@ -1,0 +1,124 @@
+::ng-deep #titTipoLiq {
+    font-weight: 200;
+    font-size: 18px;
+}
+::ng-deep .titulo1 h2 {
+    font-family: 'Segoe UI Light', 'Helvetica Neue Light', 'Segoe UI', 'Helvetica Neue', 'Trebuchet MS', Verdana;
+    font-weight: 200;
+    font-size: 28px;
+    text-align: left;
+    color: white;
+    background-color: black;
+    margin-bottom: 30px;
+    padding-left: 10px;
+}
+
+::ng-deep .p-toolbar h3 {
+    font-family: 'Segoe UI Light', 'Helvetica Neue Light', 'Segoe UI', 'Helvetica Neue', 'Trebuchet MS', Verdana;
+    font-weight: 200 bold;
+    font-size: 30px;
+    text-align: left;
+    margin-bottom: 0px;
+    margin-top: 0px;
+    color: #2196F3;
+}
+
+::ng-deep .titulo2 h3 {
+    font-family: 'Segoe UI Light', 'Helvetica Neue Light', 'Segoe UI', 'Helvetica Neue', 'Trebuchet MS', Verdana;
+    font-weight: 200 bold;
+    font-size: 20px;
+    text-align: left;
+    margin-bottom: 20px;
+}
+::ng-deep .clsTitulo4 .dx-field-item-label-text {
+    font-family: 'Segoe UI Light', 'Helvetica Neue Light', 'Segoe UI', 'Helvetica Neue', 'Trebuchet MS', Verdana;
+    font-weight: bold;
+    font-size: 18px;
+    text-decoration: blue;
+    color: blue;
+}
+::ng-deep .totLiqStyle {
+    font-size: 20px !important;
+    color: black;
+    font-weight: bold;
+}
+::ng-deep  .dx-state-disabled .dx-widget, .dx-state-disabled.dx-widget {
+    opacity: 1;
+    color: black;
+}
+::ng-deep .totGruLiqStyle {
+    border: 1px solid #495a6b;
+}
+::ng-deep .dx-state-disabled.dx-widget {
+    opacity: 1;
+    color: black;
+}
+::ng-deep .dx-datagrid-headers .clsEncabHis {  
+    background-color: rgb(17, 65, 128);  
+    color: white;
+    text-align: center !important;
+}  
+::ng-deep .dx-widget {
+    font-family: Montserrat,Helvetica,Arial,serif !important;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+::ng-deep .p-toolbar {
+    width: 100%;
+    /*overflow: hidden;*/
+    background:powderblue ;
+    position: fixed;
+    top: 0;
+    z-index: 20;
+  }
+
+::ng-deep .bodyliq {
+    margin-top: 100px;
+  }
+
+::ng-deep div.p-toolbar-group-right > p-button {
+    padding-right: 10px;
+}
+
+::ng-deep  #GLiqPrestMasiva > div > div.dx-datagrid-header-panel {
+    height: 50px;
+}
+::ng-deep  #GLiqPrestMasiva > div > div.dx-datagrid-header-panel > div {
+    background-color: rgba(168, 206, 252, 0.6) !important;
+    padding-top: 5px;
+    height: 50px;
+}
+
+::ng-deep  #GNovedades {
+    padding-bottom: 20px;
+}
+::ng-deep  #GNovedades > div > div.dx-datagrid-header-panel > div {
+    background-color: rgba(168, 206, 252, 0.6) !important;
+    padding-top: 5px;
+    height: 50px;
+}
+
+::ng-deep div.dx-datagrid-header-panel > div > div > div.dx-toolbar-before > div:nth-child(1) {
+    float: right;
+    padding-left: 20px;
+    padding-top: 5px;
+}
+::ng-deep div.dx-datagrid-header-panel > div > div > div.dx-toolbar-before > div:nth-child(2) {
+    float: right;
+    padding-left: 20px;
+    padding-top: 5px;
+}
+::ng-deep div.dx-datagrid-header-panel > div > div > div.dx-toolbar-before > div:nth-child(3) {
+    float: left;
+}
+::ng-deep .dx-checkbox-has-text .dx-checkbox-icon, .dx-checkbox-has-text .dx-checkbox-text {
+    border-color: cadetblue;
+}
+
+::ng-deep #form > div > div {
+    margin-left: 0;
+}
+::ng-deep .p-button-lg {
+    margin-left: 0;
+}

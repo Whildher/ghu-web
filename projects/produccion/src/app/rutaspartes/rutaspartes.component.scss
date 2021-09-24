@@ -1,0 +1,59 @@
+
+::ng-deep g.dxdi-main > g:nth-child(2) > g > g.shape:hover  { 
+    rect {
+        stroke: rgb(229, 133, 253) !important; 
+        fill: rgb(224, 204, 236) !important; 
+    }
+    text {
+        fill: rgb(229, 133, 253) !important; 
+    }
+}
+
+::ng-deep .p-toolbar {
+    padding: 0.2rem;
+} 
+::ng-deep  .dx-state-readonly .dx-widget, .dx-state-readonly.dx-widget {
+    border-style: solid;
+}
+::ng-deep .dx-state-readonly.dx-widget {
+    border-style: solid;
+}
+::ng-deep .dx-treelist-headers .dx-treelist-table .dx-row > td {
+    font-size: 16px;
+    background-color: aliceblue;
+    
+}
+::ng-deep .dx-field-item {
+    font-size: 16px;
+}
+::ng-deep #form {
+    margin-bottom: 8px;
+}
+::ng-deep #btnCerrarLDP {
+    margin-top: 10px;
+}
+// HIGHLIGHT ELEMENT STYLES
+::ng-deep dx-diagram.highlight-is-active {
+    pointer-events:  none;
+}
+  
+::ng-deep .highlight {
+    opacity: 0;
+    animation: rectFade 1s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+    /*rect {
+        stroke: rgb(245, 138, 88) !important; 
+        fill: rgb(245, 242, 104) !important; 
+    }
+    text {
+        fill: rgb(245, 138, 88) !important; 
+    }*/
+}
+@keyframes rectFade{
+    from {
+        width: 1%;
+    }
+    to {
+        width:100%;
+        opacity: 1;
+    }
+    }  

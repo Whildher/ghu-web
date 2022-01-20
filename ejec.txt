@@ -1,0 +1,19 @@
+ng serve --port 4400 --proxy-config proxy.conf.json
+ng serve --ssl=true --host=0.0.0.0 --port 2350 --proxy-config proxy.conf.json
+
+{
+    "/api/*":{
+        "target":"http://192.168.0.30:8555",
+        "secure":false,
+        "loglevel":"debug"
+    }
+}
+
+{
+    "/api/*":{
+        "target":"http://190.85.54.78:4990",
+        "secure":false,
+        "loglevel":"debug"
+    }
+    
+}

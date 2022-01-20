@@ -3,120 +3,171 @@
         <p-button icon="pi pi-home" class="p-mr-2" (click)="clickHome($event)"></p-button>
         <h3>{{titLiquidacion}}</h3>
     </div>
+    <div class="p-toolbar-group-right">
+        <p-button label="{{usuario}}" icon="pi pi-user" styleClass="p-button-warning" badge="8" badgeClass="p-badge-danger"></p-button>
+    </div>
 </p-toolbar>
 
-<div id="divLiq" class="bodyliq">
+<div class="container bodyliq">
+    <div class="row">
+        <div class="col">
+        </div>
 
-    <dx-form id="form"
-        [formData]="DFEmpleados"
-        [colCount]="2">
-        <dxi-item itemType="group">
-            <dxi-item itemType="group" cssClass="first-group" [colCount]="2" caption="Empleado">
-            <dxi-item dataField="ID_EMPLEADO" editorType="dx-drop-down-box" >
-                <dxo-label text="Empleado"></dxo-label>
-                <dx-drop-down-box
-                    #ddLEmple
-                    [(value)]="gridBoxValue"
-                    [(opened)]="isGridBoxOpened"
-                    valueExpr="ID"
-                    [deferRendering]="false"
-                    [displayExpr]="seleccEmpleado"
-                    placeholder="Seleccione un empleado..."
-                    [showClearButton]="true"
-                    [dataSource]="GLEmpleados"
-                    (onOptionChanged)="onGridBoxOptionChanged($event)"
-                    >
+        <div class="col-8">
+            <dx-form id="form"
+                [formData]="DFEmpleados"
+                [colCount]="1"
+                (onFieldDataChanged)="valideFechas($event)">
 
-                    <div *dxTemplate="let data of 'content'">
-                        <dx-data-grid
-                                #GListaEmple
+                <dxi-item itemType="group">
+                    <dxi-item itemType="group" cssClass="first-group" [colCount]="2" caption="Empleado">
+                        <dxi-item dataField="ID_EMPLEADO" editorType="dx-drop-down-box" >
+                            <dxo-label text="Empleado"></dxo-label>
+                            <dx-drop-down-box
+                                #ddLEmple
+                                [(value)]="gridBoxValue"
+                                [(opened)]="isGridBoxOpened"
+                                valueExpr="ID"
+                                [deferRendering]="false"
+                                [displayExpr]="seleccEmpleado"
+                                placeholder="Seleccione un empleado..."
+                                [showClearButton]="true"
                                 [dataSource]="GLEmpleados"
-                                [hoverStateEnabled]="true"
-                                height="100%"
-                                [columns]="gridColumns"
-                                [(selectedRowKeys)]="gridBoxValue"
-                        >
-                            <dxo-selection mode="single"></dxo-selection>
-                            <dxo-scrolling mode="virtual"></dxo-scrolling>
-                            <dxo-search-panel [visible]="true"></dxo-search-panel>
-                            <dxo-paging [enabled]="true" [pageSize]="10"></dxo-paging>
-                        </dx-data-grid>
-                    </div>
-                </dx-drop-down-box>
-            </dxi-item>
-            <dxi-item dataField="NOMBRE_COMPLETO" [editorOptions]="{ disabled: true }" id="txtNombreEmp">
-                <dxo-label text="Nombre" ></dxo-label>
-            </dxi-item>
-        </dxi-item>
-        <dxi-item itemType="group" cssClass="second-group" [colCount]="2" caption="Datos del contrato">
-            <dxi-item dataField="CONTRATO">
-                <dxo-label text="Nro Contrato"></dxo-label>
-            </dxi-item>
-            <dxi-item dataField="DIAS">
-                <dxo-label text="Días Contrato"></dxo-label>
-            </dxi-item>
-            <dxi-item dataField="PERIODO" colSpan="2">
-                <dxo-label text="Periodo"></dxo-label>
-                <dx-select-box 
-                    [dataSource]="DPeriodos"
-                    displayExpr="PERIODO"
-                    valueExpr="PERIODO"
-                    (onValueChanged)="onPeriodoSelecc($event)">
-                </dx-select-box>
-            </dxi-item>
-            <dxi-item dataField="FECHA_INICIAL" editorType="dxDateBox"  >
-                <dxo-label text="Fecha Inicio"></dxo-label>
-            </dxi-item>
-            <dxi-item dataField="FECHA_FINAL" editorType="dxDateBox" >
-                <dxo-label text="Fecha Final"></dxo-label>
-            </dxi-item>
-            <dxi-item dataField="FECHA_INI_BASE" editorType="dxDateBox" >
-                <dxo-label text="Fecha Ini Base"></dxo-label>
-            </dxi-item>
-            <dxi-item dataField="FECHA_FIN_BASE" editorType="dxDateBox" >
-                <dxo-label text="Fecha Fin Base"></dxo-label>
-            </dxi-item>
-            <dxi-item dataField="ID_EMPRESA" >
-                <dxo-label text="Empresa"></dxo-label>
-                <dx-select-box 
-                    [dataSource]="DEmpresas"
-                    displayExpr="ID_EMPRESA"
-                    valueExpr="ID_EMPRESA"
-                    searchMode="contains"
-                    [searchExpr]="colBusqEmpre"
-                    [searchTimeout]="200"
-                    [minSearchLength]="0"
-                    [searchEnabled]="true"
-                    (onValueChanged)="onEmpresaSelecc($event)">
-                </dx-select-box>
-            </dxi-item>
-            <dxi-item dataField="GRUPO" editorType="dxSelectBox">
-                <dxo-label text="Grupo"></dxo-label>
-                <dx-select-box 
-                    [dataSource]="DGrupos"
-                    displayExpr="GRUPO"
-                    valueExpr="GRUPO"
-                    searchMode="contains"
-                    [searchExpr]="colBusq"
-                    [searchTimeout]="200"
-                    [minSearchLength]="0"
-                    [searchEnabled]="true"
-                    (onValueChanged)="onGrupoSelecc($event)">
-                </dx-select-box>
-            </dxi-item>
-        </dxi-item>
+                                (onOptionChanged)="onGridBoxOptionChanged($event)"
+                                >
 
-        </dxi-item>
+                                <div *dxTemplate="let data of 'content'">
+                                    <dx-data-grid
+                                            #GListaEmple
+                                            [dataSource]="GLEmpleados"
+                                            [hoverStateEnabled]="true"
+                                            height="100%"
+                                            [columns]="gridColumns"
+                                            [(selectedRowKeys)]="gridBoxValue"
+                                    >
+                                        <dxo-selection mode="single"></dxo-selection>
+                                        <dxo-scrolling mode="virtual"></dxo-scrolling>
+                                        <dxo-search-panel [visible]="true"></dxo-search-panel>
+                                        <dxo-paging [enabled]="true" [pageSize]="10"></dxo-paging>
+                                    </dx-data-grid>
+                                </div>
+                            </dx-drop-down-box>
+                        </dxi-item>
+                        <dxi-item dataField="NOMBRE_COMPLETO" [editorOptions]="{ disabled: true }" id="txtNombreEmp">
+                            <dxo-label text="Nombre" ></dxo-label>
+                        </dxi-item>
+                    </dxi-item>
 
-    </dx-form>
-    <br>
-    <button pButton 
-        type="button" 
-        label="Generar Liquidación" 
-        icon="pi pi-cog" 
-        class="p-button-lg" 
-        (click)="clickLiquida($event)">
-    </button>
+                    <dxi-item itemType="group" cssClass="second-group" [colCount]="2" caption="Datos del contrato">
+                        <dxi-item dataField="CONTRATO">
+                            <dxo-label text="Nro Contrato"></dxo-label>
+                        </dxi-item>
+                        <dxi-item dataField="DIAS">
+                            <dxo-label text="Días Contrato"></dxo-label>
+                        </dxi-item>
+                        <dxi-item dataField="PERIODO" colSpan="2">
+                            <dxo-label text="Periodo"></dxo-label>
+                            <dx-select-box 
+                                [dataSource]="DPeriodos"
+                                displayExpr="PERIODO"
+                                valueExpr="PERIODO"
+                                (onValueChanged)="onPeriodoSelecc($event)">
+                            </dx-select-box>
+                        </dxi-item>
+
+                        <!--** Si es una Liquidación de Contrato **-->
+                        <ng-container *ngIf="id_Liquidacion == 'Contrato'">  
+                            <dxi-item dataField="FECHA_INICIAL" editorType="dxDateBox"  [editorOptions]="{ disabled: true }" >
+                                <dxo-label text="Fecha Inicio"></dxo-label>
+                            </dxi-item>
+                            <dxi-item dataField="FECHA_FINAL" editorType="dxDateBox" >
+                                <dxo-label text="Fecha Retiro"></dxo-label>
+                            </dxi-item>
+                            <dxi-item dataField="ID_CAUSA" editorType="dxSelectBox" >
+                                <dxo-label text="Causa"></dxo-label>
+                                <div *dxTemplate>
+                                    <dx-select-box 
+                                        [dataSource]="dSBCausas" 
+                                        [dropDownOptions]="dropDownOptions"
+                                        displayExpr="ID_CAUSA" 
+                                        valueExpr="ID_CAUSA"
+                                        (onValueChanged)="onSeleccCausa($event)">
+                                    </dx-select-box>
+                                </div>
+                            </dxi-item>
+                            <dxi-item dataField="COMENTARIOS" >
+                                <dxo-label text="Observaciones"></dxo-label>
+                            </dxi-item>
+                        </ng-container>
+
+                        <!--** Si NO es una Liquidación de Contrato **-->
+                        <ng-container *ngIf="id_Liquidacion != 'Contrato'">  
+                            <dxi-item dataField="FECHA_INICIAL" editorType="dxDateBox"  >
+                                <dxo-label text="Fecha Inicio"></dxo-label>
+                            </dxi-item>
+                            <dxi-item dataField="FECHA_FINAL" editorType="dxDateBox"  >
+                                <dxo-label text="Fecha Final"></dxo-label>
+                            </dxi-item>
+                        </ng-container>
+
+                        <dxi-item dataField="FECHA_INI_BASE" editorType="dxDateBox" >
+                            <dxo-label text="Fecha Ini Base"></dxo-label>
+                        </dxi-item>
+                        <dxi-item dataField="FECHA_FIN_BASE" editorType="dxDateBox" >
+                            <dxo-label text="Fecha Fin Base"></dxo-label>
+                        </dxi-item>
+                        <dxi-item dataField="ID_EMPRESA" >
+                            <dxo-label text="Empresa"></dxo-label>
+                            <dx-select-box 
+                                [dataSource]="DEmpresas"
+                                displayExpr="ID_EMPRESA"
+                                valueExpr="ID_EMPRESA"
+                                searchMode="contains"
+                                [searchExpr]="colBusqEmpre"
+                                [searchTimeout]="200"
+                                [minSearchLength]="0"
+                                [searchEnabled]="true"
+                                (onValueChanged)="onEmpresaSelecc($event)">
+                            </dx-select-box>
+                        </dxi-item>
+                        <dxi-item dataField="GRUPO" editorType="dxSelectBox">
+                            <dxo-label text="Grupo"></dxo-label>
+                            <dx-select-box 
+                                [dataSource]="DGrupos"
+                                displayExpr="GRUPO"
+                                valueExpr="GRUPO"
+                                searchMode="contains"
+                                [searchExpr]="colBusq"
+                                [searchTimeout]="200"
+                                [minSearchLength]="0"
+                                [searchEnabled]="true"
+                                (onValueChanged)="onGrupoSelecc($event)">
+                            </dx-select-box>
+                        </dxi-item>
+                    </dxi-item>
+
+                    <dxi-item itemType="group" cssClass="second-group" [colCount]="1" caption="Parámetros de generación">
+                        <dxi-item editorType="dxCheckBox" [editorOptions]="checkBoxGenNom" ></dxi-item> 
+                        <dxi-item editorType="dxCheckBox" [editorOptions]="checkBoxElimLiq" ></dxi-item> 
+                    </dxi-item>
+
+                </dxi-item>
+
+            </dx-form>
+            <br>
+            <button pButton 
+                type="button" 
+                label="Generar Liquidación" 
+                icon="pi pi-cog" 
+                class="p-button-lg" 
+                (click)="clickLiquida($event)">
+            </button>
+
+        </div>
+
+        <div class="col">
+        </div>
+    </div>
 
 </div>
 
@@ -141,3 +192,4 @@
         <p-button icon="pi pi-check" (click)="displayModal=false" label="Ok" styleClass="p-button-text"></p-button>
         </ng-template>
 </p-dialog>
+ 

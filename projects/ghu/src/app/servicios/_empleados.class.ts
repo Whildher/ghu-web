@@ -18,7 +18,11 @@ export class Empleados {
       public TDINT?: number,
       public TVVAC?: number,
       public TDVAC?: number,
-      public TTOT?: number
+      public TTOT?: number,
+      public ID_CAUSA?: string,
+      public COMENTARIOS?: string,
+      public GEN_NOM?: boolean,
+      public ELIM_LIQ?: string
 	) {}
 
 }
@@ -33,24 +37,28 @@ export class ListaEmpleados {
 
 export class HistoricoLiq {
     constructor(
-		public ID?: number,
-		public ID_EMPLEADO?: string,
-		public FECHA_INICIAL?: Date,
-		public FECHA_FINAL?: Date,
-		public DIAS?: number,
-        public VALOR?: number,
-        public SALARIO?: number,
-        public NUM_LIQ?: string
+      public ID?: number,
+      public ID_EMPLEADO?: string,
+      public FECHA_INICIAL?: Date,
+      public FECHA_FINAL?: Date,
+      public DIAS?: number,
+      public VALOR?: number,
+      public SALARIO?: number,
+      public NUM_LIQ?: string,
+      public ID_LIQ?: string,
+      public ID_APL?: string,
+      public ID_RPT?: string
 	) {}
 
 }
 
 export class TiposLiq {
   constructor(
-    public idliq?: string,
-    public nomliq?: string,
+    public idliq: string,
+    public nomliq: string,
     public descliq?: string,
-    public img?: string
+    public img?: string,
+    public abrev?: string
   ) {}
 }
 
@@ -73,7 +81,18 @@ export class Novedades  {
     ) {}
   }
 
-export class Conceptos  {
+  export class DLiquidacion  {
+    constructor(
+      public ID_CONCEPTO: string,
+      public NOMBRE: string,
+      public BASE: number,
+      public DIAS: number,
+      public TOTAL: number,
+      public OPCION: string
+      ) {}
+    }
+  
+  export class Conceptos  {
   constructor(
     public ID_CONCEPTO: string,
     public NOMBRE: string,
@@ -88,6 +107,7 @@ export class Liquidaciones {
     public EMPLEADO: string,
     public PERIODO: string,
     public TIPO: string,
-    public FILTRO: string
+    public FILTRO: string,
+    public REPORTE: string
     ) {}
   }

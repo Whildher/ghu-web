@@ -1,4 +1,4 @@
-import { Component, DebugElement, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, DebugElement, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SdatrepService } from '../servicios/sdatrep.service';
@@ -12,7 +12,9 @@ import { SreportesService } from '../servicios/sreportes.service';
 export class RepaplicacionComponent implements OnInit {
 	//subscription: Subscription;
   reportes: any;
+  @Input() public idApl: string;
   @Output() messageEvent = new EventEmitter<string>();
+  @Output() onSeleccVistaRouter = new EventEmitter<any>();
 
   constructor(private _sreportes: SreportesService,
               private _sdatosrep: SdatrepService,
@@ -41,7 +43,8 @@ export class RepaplicacionComponent implements OnInit {
 
   IrAFiltro(e: any, IdRep: string, NombreRep: string) {
     const rfiltro = JSON.stringify(this.reportes[1].filtro);
-    this.router.navigate(['/filtrorep', {dfiltro: rfiltro}], {skipLocationChange: true});
+    //this.router.navigate(['/filtrorep', {dfiltro: rfiltro}], {skipLocationChange: true});
+    this.onSeleccVistaRouter.emit('filtro');
     this._sreportes.setObsDatosReporteApl('nav:Filtro '+NombreRep);
   }
 
@@ -52,13 +55,17 @@ export class RepaplicacionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.route.params.subscribe(parameter => {
+    /*this.route.params.subscribe(parameter => {
       this.CargarReportesApl(parameter['IdApl'])
-    });
+    });*/
+    this.CargarReportesApl(this.idApl);
     //window.history.pushState("", "", '/');
   }
   ngOnDestroy() { 
     //this.subscription.unsubscribe();
   }
+  ngOnChanges() {
+     this.CargarReportesApl(this.idApl);
+    }   
 
 }

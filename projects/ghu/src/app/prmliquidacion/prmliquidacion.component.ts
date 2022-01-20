@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DxDropDownBoxComponent } from 'devextreme-angular';
+import { GlobalsService } from '../globals.service';
 import { Empleados } from '../servicios/_empleados.class';
 import { SdatosService } from '../servicios/_sdatos.service';
 
@@ -16,6 +17,8 @@ export class PrmliquidacionComponent implements OnInit {
   DFEmpleados: Empleados = new Empleados();
   GLEmpleados: any;
   DPeriodos: any;
+	dSBCausas = [];
+  id_causa: string;
   isGridBoxOpened: boolean=false;
   valSeleccEmpleado: string = '';
   valSeleccEmpresa: string = '';
@@ -31,6 +34,11 @@ export class PrmliquidacionComponent implements OnInit {
   titLiquidacion: string = "";
   id_Liquidacion: string = "";
   valSeleccPeriodo: string = "";
+  dropDownOptions = { width: 500 };
+  checkBoxGenNom: any;
+  valCheckBoxGenNom: boolean;
+  checkBoxElimLiq: any;
+  valcheckBoxElimLiq: boolean;
 
   colBusq: any = "GRUPO";
   colBusqEmpre: any = "ID_EMPRESA";
@@ -42,6 +50,7 @@ export class PrmliquidacionComponent implements OnInit {
   editRow: number = -1;
   datFilaEdit: any;
   gridPresExp: any;
+  id_apl: string;
 
   // Lista de tipos de liquidaciones
   itmListaLiq: string[] = [
@@ -56,12 +65,15 @@ export class PrmliquidacionComponent implements OnInit {
   displayModal: boolean = false;
   errMsg: string = "";
   errTit: string = "";
-  
+  usuario: string;
+
   constructor(private _sdatos: SdatosService, 
               private route: ActivatedRoute,
               private router: Router,
-              public datepipe: DatePipe) 
+              public datepipe: DatePipe,
+              private globals: GlobalsService) 
   { 
+
     const prm = { FILTRO: '' };
     this._sdatos.getDatos('LISTA EMPLEADOS',prm).subscribe((data: any)=> {
       this.GLEmpleados = JSON.parse(data);
@@ -76,6 +88,7 @@ export class PrmliquidacionComponent implements OnInit {
 
     this.seleccEmpleado = this.seleccEmpleado.bind(this);
     this.onGridBoxOptionChanged = this.onGridBoxOptionChanged.bind(this);
+    this.valideFechas = this.valideFechas.bind(this);
 
   }
 
@@ -96,7 +109,33 @@ export class PrmliquidacionComponent implements OnInit {
         this.valSeleccEmpleado = dat[0].ID_EMPLEADO;
       const prm = { FILTRO: this.valSeleccEmpleado };
       this._sdatos.getDatos('DATOS CONTRATO',prm).subscribe((data: any)=> {
-        this.DFEmpleados = JSON.parse(data);
+        var datcon = JSON.parse(data);
+        this.DFEmpleados = datcon[0];
+
+        // Datos de generacion si es Liq Contrato
+        if (this.id_Liquidacion === 'Contrato') {
+          this.valCheckBoxGenNom = true;
+          this.checkBoxGenNom = {
+              text: datcon[1].liqnom,
+              value: true,
+              disabled: datcon[1].eliminar,
+              onValueChanged: (e: any) => {
+                this.valCheckBoxGenNom = e.component.option("value");
+              }
+            };
+          this.DFEmpleados.ELIM_LIQ = datcon[2].documento;
+          this.valcheckBoxElimLiq = false;
+          this.checkBoxElimLiq = {
+              text: datcon[2].liqcon,
+              value: false,
+              disabled: datcon[2].eliminar,
+              onValueChanged: (e: any) => {
+                this.valcheckBoxElimLiq = e.component.option("value");
+              }
+            }
+
+        }
+
       });
     }
   }
@@ -117,6 +156,40 @@ export class PrmliquidacionComponent implements OnInit {
   onFechaCambio(e: any){
     console.log(e); 
   }
+  valideFechas(e: any){
+    if (e.dataField.match('FECHA_INICIAL|FECHA_FINAL') && e.value != undefined) {
+
+      const prm = { ID_EMPLEADO: this.valSeleccEmpleado, 
+                    FECHA_INICIAL: e.dataField == 'FECHA_INICIAL' ? this.datepipe.transform(e.value, 'MM/dd/yyyy') : this.datepipe.transform(this.DFEmpleados.FECHA_INICIAL, 'MM/dd/yyyy'),
+                    FECHA_FINAL: e.dataField == 'FECHA_FINAL' ? this.datepipe.transform(e.value, 'MM/dd/yyyy') : this.datepipe.transform(this.DFEmpleados.FECHA_FINAL, 'MM/dd/yyyy'),
+                    ID_LIQ: this.id_Liquidacion
+                  };
+      this._sdatos.getDatos('ACCION LIQUIDACIONES',prm).subscribe((data: any)=> {
+        var datcon = JSON.parse(data);
+
+        // Datos de generacion si es Liq Contrato
+        this.valCheckBoxGenNom = true;
+        this.checkBoxGenNom = {
+              text: datcon[0].liqnom,
+              value: true,
+              onValueChanged: (e: any) => {
+                this.valCheckBoxGenNom = e.component.option("value");
+              }
+            };
+        this.DFEmpleados.ELIM_LIQ = datcon[1].documento;
+        this.valcheckBoxElimLiq = true;
+        this.checkBoxElimLiq = {
+              text: datcon[1].liqcon,
+              value: false,
+              disabled: datcon[1].eliminar,
+              onValueChanged: (e: any) => {
+                this.valcheckBoxElimLiq = e.component.option("value");
+              }
+            }
+      });
+
+    }
+  }
 
   onEmpresaSelecc(e: any){
     this.valSeleccEmpresa = e.value;
@@ -124,6 +197,10 @@ export class PrmliquidacionComponent implements OnInit {
   onGrupoSelecc(e: any){
     this.valSeleccGrupo = e.value.split(' > ')[0];
   }
+  onSeleccCausa(e: any): void {
+		this.id_causa = e.value;
+    this.DFEmpleados.ID_CAUSA = e.value;
+	}
 
   onGridBoxConceptoChanged(e: any){
     if (e.name === "value"){
@@ -173,7 +250,11 @@ export class PrmliquidacionComponent implements OnInit {
                   EMPRESA: this.valSeleccEmpresa,
                   GRUPO: this.valSeleccGrupo,
                   CONTRATO: this.DFEmpleados.CONTRATO,
-                  DIAS: this.DFEmpleados.DIAS
+                  DIAS: this.DFEmpleados.DIAS,
+                  ID_CAUSA: this.DFEmpleados.ID_CAUSA,
+                  COMENTARIOS: this.DFEmpleados.COMENTARIOS,
+                  GEN_NOM: this.valCheckBoxGenNom,
+                  ELIM_LIQ: this.valcheckBoxElimLiq ? this.DFEmpleados.ELIM_LIQ : ''
                 };
     const IdLiq = this.id_Liquidacion;
     const NomLiq = this.titLiquidacion;
@@ -192,6 +273,8 @@ export class PrmliquidacionComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.usuario = this.globals.nom_usr;
+
     // Confecciona los elementos de acuerdo al tipo de liquidacion
     this.route.params.subscribe(parameter => {
       this.titLiquidacion = parameter['NomLiq'];
@@ -207,6 +290,9 @@ export class PrmliquidacionComponent implements OnInit {
           ele.FECHA_FIN_BASE = this.datepipe.transform(ele.FECHA_FIN_BASE, 'MM/dd/yyyy');
           });
       });
+      this._sdatos.getDatos('CAUSAS',prm).subscribe((data: any)=> {
+        this.dSBCausas = JSON.parse(data);
+      });
 
     });
 
@@ -214,6 +300,13 @@ export class PrmliquidacionComponent implements OnInit {
 
   ngAfterViewInit(): void {  
     this.ddLEmple?.instance.option("dropDownOptions.width", 600);  
+
+    // Asocia color al encabezado --- al navegar entre routes se pierde ya que crea el de liqcontrato
+    var divforma = document.getElementsByClassName('bodyliq') as HTMLCollectionOf<HTMLElement>;
+    /*divforma[0].style.marginTop = "100px";
+    divforma[0].style.marginLeft = "10%";
+    divforma[0].style.marginRight = "10%";*/
+    
   }  
 
 }

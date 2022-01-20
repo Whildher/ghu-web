@@ -18,7 +18,7 @@ import {SplitterModule} from 'primeng/splitter';
 })
 export class ReportesComponent implements OnInit {
   //@ViewChild('IniFiltro', {static: true}) template
-
+  
   navigation: any;
   text: string;
   selectedOpenMode: string = 'shrink';
@@ -33,6 +33,7 @@ export class ReportesComponent implements OnInit {
   IdAplicacion: string = 'PRO-013';
   msgnav: string = '';
   elemNav: MenuItem = {};
+  visor_router: string;
 
   constructor(private _sreportes: SreportesService,
               private _sdatosrep: SdatrepService,
@@ -77,17 +78,29 @@ export class ReportesComponent implements OnInit {
   selAplicacion(e: any): void {
     this.Vista = 'listarep';
     //this._sreportes.setObsDatosReporteApl('listarep|'+e.itemData.ID_APLICACION);
-    this.router.navigate(['/repaplicacion', {IdApl: e.itemData.ID_APLICACION}], {skipLocationChange: true});
+    //this.router.navigate(['/repaplicacion', {IdApl: e.itemData.ID_APLICACION}], {skipLocationChange: true});
+    this.IdAplicacion = e.itemData.ID_APLICACION;
   }
 
   OnItemBread(e: any): void {
     if (e.item.name === 'home') {
       //this.toolbarContent[0].options.onClick();
-      this.router.navigate(['/repaplicacion', {IdApl: this.IdAplicacion}], {skipLocationChange: true});
+      //this.router.navigate(['/repaplicacion', {IdApl: this.IdAplicacion}], {skipLocationChange: true});
+      this.visor_router = "aplicacion";
+      this.IdAplicacion = e.itemData.ID_APLICACION;
       this.itemsNav = [
         {label:'<a href="#">' + this.itemsNav[0].label + '</a>', escape: false}
       ];
     }
+  }
+
+  clickHome(e: any) {
+    //this.router.navigate(['/principal']);
+  }
+
+
+  seleccVista(vista: any) {
+    this.visor_router = 'filtro';
   }
 
   ngOnInit(): void {
@@ -98,7 +111,7 @@ export class ReportesComponent implements OnInit {
     //  this.IdAplicacion = parameter['IdApl']
     //});
 
-    this.router.navigate(['/repaplicacion', {IdApl: this.IdAplicacion}], {skipLocationChange: true});
+    //this.router.navigate(['/repaplicacion', {IdApl: this.IdAplicacion}], {skipLocationChange: true});
     const prmrep = { USUARIO: 'XTEIN', APLICACION: this.IdAplicacion };
     this._sdatosrep.getDatReporte(prmrep).subscribe((data)=> {
       this.text = JSON.stringify(data[0].reportes);
@@ -122,7 +135,10 @@ export class ReportesComponent implements OnInit {
       {label:'<a href="#">Filtro</a>', escape: false}
     ];*/
 
-    console.log(this.itemsNav);
+    // Visor por defecto
+    this.visor_router = 'aplicacion';
+
+    console.log('items nav',this.itemsNav);
 
   }
 

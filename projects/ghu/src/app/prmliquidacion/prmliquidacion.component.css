@@ -23,6 +23,10 @@
     font-weight: 500;
 }
 
+::ng-deep .dx-searchbox  {  
+  width: 300px !important;  
+}  
+
 ::ng-deep .p-toolbar {
     width: 100%;
     /*overflow: hidden;*/
@@ -35,9 +39,9 @@
 ::ng-deep .bodyliq {
     margin-top: 100px;
   }
-  ::ng-deep #form > div > div {
+  ::ng-deep #form1 > div > div {
     margin-left: 25%;
   }
-  ::ng-deep .p-button-lg {
+  ::ng-deep .p-button-lg1 {
     margin-left: 25%;
   }

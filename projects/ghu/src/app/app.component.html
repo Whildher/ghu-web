@@ -1,1 +1,11 @@
+<p-toolbar id="titPrincipal">
+    <div class="p-toolbar-group-left">
+        <p-button icon="pi pi-home" class="p-mr-2" (click)="clickHome($event)"></p-button>
+        <h3 class="titPpal">{{globals.tit_pag}}</h3>
+    </div>
+    <div class="p-toolbar-group-right">
+        <p-button label="{{globals.nom_usr}}-{{globals.clid}}" icon="pi pi-user" styleClass="p-button-warning" badge="8" badgeClass="p-badge-danger"></p-button>
+    </div>
+</p-toolbar>
+
 <router-outlet></router-outlet>

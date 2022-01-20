@@ -1,39 +1,56 @@
-<dx-toolbar
-    #toolrep
-    [items]="toolbarContent">
-</dx-toolbar>
-<dx-drawer
-    #drawer
-    [openedStateMode]="selectedOpenMode"
-    [position]="selectedPosition"
-    [revealMode]="selectedRevealMode"
-    template="template"
-    [(opened)]="isDrawerOpen"
-    height="90vh"
-    [closeOnOutsideClick]="true">
-    <div *dxTemplate="let data of 'template'" style="width: 200px">
-        <div id="panel-rep">
-                <dx-list class="panel-list"
-                    [dataSource]="navigation"
-                    [hoverStateEnabled]="false"
-                    [activeStateEnabled]="false"
-                    [focusStateEnabled]="false"
-                    [grouped]="true"
-                    height="auto"
-                    selectionMode="single"
-                    [scrollByContent]="true"
-                    [collapsibleGroups]="true"
-                    (onItemClick)=selAplicacion($event)>
-                    <div *dxTemplate="let item of 'group'">
-                        <div style="height: 30px;">{{item.key}}</div>
-                    </div>
-                </dx-list>
+<p-toolbar>
+    <div class="p-toolbar-group-left">
+        <p-button icon="pi pi-home" class="p-mr-2" (click)="clickHome($event)"></p-button>
+        <h3>Administrador de reportes</h3>
+    </div>
+    <div class="p-toolbar-group-right">
+        <!--<p-button label="Consultas" icon="pi pi-search" (click)="clickBuscarLiq($event)"></p-button>
+        <p-button label="Nueva Liquidación" icon="pi pi-plus" (click)="clickNuevaLiq($event)"></p-button>
+        <p-splitButton label="Informes" icon="pi pi-print" [model]="itemsInformes" styleClass="p-button-success"></p-splitButton>-->
+        <p-button label="xxx" icon="pi pi-user" styleClass="p-button-warning" badge="8" badgeClass="p-badge-danger"></p-button>
+    </div>
+</p-toolbar>
+
+<div class="contenido">
+    <dx-toolbar
+        #toolrep
+        [items]="toolbarContent">
+    </dx-toolbar>
+    <dx-drawer
+        #drawer
+        [openedStateMode]="selectedOpenMode"
+        [position]="selectedPosition"
+        [revealMode]="selectedRevealMode"
+        template="template"
+        [(opened)]="isDrawerOpen"
+        height="90vh"
+        [closeOnOutsideClick]="true">
+        <div *dxTemplate="let data of 'template'" style="width: 200px">
+            <div id="panel-rep">
+                    <dx-list class="panel-list"
+                        [dataSource]="navigation"
+                        [hoverStateEnabled]="false"
+                        [activeStateEnabled]="false"
+                        [focusStateEnabled]="false"
+                        [grouped]="true"
+                        height="auto"
+                        selectionMode="single"
+                        [scrollByContent]="true"
+                        [collapsibleGroups]="true"
+                        (onItemClick)="selAplicacion($event)">
+                        <div *dxTemplate="let item of 'group'">
+                            <div style="height: 30px;">{{item.key}}</div>
+                        </div>
+                    </dx-list>
+            </div>
         </div>
-    </div>
-    <!-- <div id="content" class="dx-theme-background-color" [innerHTML]="text"></div> -->
-    <div id="content" class="content-block dx-card responsive-paddings">
-        <p-breadcrumb [home]="home" [model]="itemsNav" styleClass="clsMenuBadge" (onItemClick)="OnItemBread($event)"></p-breadcrumb>
-        <router-outlet></router-outlet>
-    </div>
-    
-</dx-drawer>
+        <!-- <div id="content" class="dx-theme-background-color" [innerHTML]="text"></div> -->
+        <div id="content" class="content-block dx-card responsive-paddings">
+            <p-breadcrumb [home]="home" [model]="itemsNav" styleClass="clsMenuBadge" (onItemClick)="OnItemBread($event)"></p-breadcrumb>
+            <!--<router-outlet name="admreportes"></router-outlet>-->
+            <app-repaplicacion *ngIf="visor_router=='aplicacion'" (onSeleccVistaRouter)="seleccVista($event)" [idApl]="IdAplicacion"></app-repaplicacion>
+            <app-filtrorep *ngIf="visor_router=='filtro'" (onSeleccVistaRouter)="seleccVista($event)" [idApl]="IdAplicacion"></app-filtrorep>
+        </div>
+        
+    </dx-drawer>
+</div>

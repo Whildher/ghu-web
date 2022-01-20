@@ -32,10 +32,34 @@
 ::ng-deep .screen-large .responsive-paddings {
     padding: 0px;
 }
+
+::ng-deep .p-toolbar h3 {
+    font-family: 'Segoe UI Light', 'Helvetica Neue Light', 'Segoe UI', 'Helvetica Neue', 'Trebuchet MS', Verdana;
+    font-weight: 200 bold;
+    font-size: 30px;
+    color: white;
+    text-align: left;
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+
+::ng-deep .p-toolbar {
+    width: 100%;
+    /*overflow: hidden;*/
+    background:#2196F3 ;
+    position: fixed;
+    top: 0;
+    z-index: 30;
+  }
+::ng-deep .contenido {
+    margin-top: 80px;
+}
+
+
 ::ng-deep #toolrep {
     position: -webkit-sticky; /* Safari & IE */
     position: sticky;
-    top: 0;
+    /*top: 0;*/
 }
 ::ng-deep #content {
     height: 90vh;

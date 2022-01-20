@@ -1,14 +1,3 @@
-<p-toolbar>
-    <div class="p-toolbar-group-left">
-        <p-button icon="pi pi-home" class="p-mr-2" (click)="clickHome($event)"></p-button>
-        <h3>{{titLiquidacion}}</h3>
-    </div>
-    <div class="p-toolbar-group-right">
-        <p-button label="Consultas" icon="pi pi-search" (click)="clickBuscarLiq($event)"></p-button>
-        <p-button label="Nueva Liquidación" icon="pi pi-plus" (click)="clickNuevaLiq($event)"></p-button>
-        <p-splitButton label="Informes" icon="pi pi-print" [model]="itemsInformes" styleClass="p-button-success"></p-splitButton>
-    </div>
-</p-toolbar>
 
 <div id="divLiq" class="bodyliq">
 
@@ -87,13 +76,15 @@
 
     </dx-form>
     <br>
-    <dx-button
-        stylingMode="contained"
-        text="Liquidar..."
-        type="success"
-        [width]="120"
-        (onClick)="clickLiquida($event)">
-    </dx-button>
+
+    <button pButton 
+        type="button"
+        label="Generar" 
+        icon="pi pi-cog" 
+        class="p-button-lg" 
+        (click)="clickLiquida($event)"
+        *ngIf="this.modoOperacion !== 'consulta'">
+    </button>
 
     <div *ngIf="!filtroMasivo">
         <div class="titulo2">
@@ -154,95 +145,129 @@
         </dx-data-grid>
     </div>
 
-    <div class="titulo2">
-        <h3>Liquidación de prestaciones</h3>
-    </div>
-
-    <!-- NOVEDADES -->
-    <dx-data-grid 
-        id="GNovedades"
-        [dataSource]="DNovedades"
-        keyExpr="ID_EMPLEADO"
-        [allowColumnReordering]="true"
-        [showBorders]="true"
-        (onEditorPreparing)="onEditorPreparingNov($event)"
-        (onToolbarPreparing)="onToolbarPreparingNov($event)"
-        (onInitNewRow)="onInitNewRowNov($event)">
-        
-        <dxo-paging [enabled]="true"></dxo-paging>
-        <dxo-editing 
-            mode="row"
-            [allowUpdating]="true"
-            [allowDeleting]="true"
-            [allowAdding]="true">
-        </dxo-editing>
-        <dxo-selection  
-            mode="multiple">
-        </dxo-selection>  
-
-        <dxi-column dataField="ID_EMPLEADO" caption="Id Empleado" [allowEditing]="false" [width]="150" cssClass="clsEncabHis"></dxi-column>
-        <dxi-column dataField="NOMBRE_COMPLETO" caption="Nombre" [allowEditing]="false" [width]="350" cssClass="clsEncabHis"></dxi-column>
-        <dxi-column dataField="FECHA_DESDE" caption="Fecha" [setCellValue]="setCellFDesde" [width]="350" dataType="date">
-        </dxi-column>
-        <dxi-column dataField="FECHA_HASTA" caption="Fecha" [width]="350" dataType="date">
-        </dxi-column>
-        <dxi-column
-            dataField="ID_CONCEPTO"
-            caption="Concepto"
-            cssClass="clsEncabHis"
-            [width]="250"
-            editCellTemplate="singleDropDownBoxEditor">         
-            <dxo-lookup
-                [dataSource]="GLConceptos"
-                displayExpr="ID_CONCEPTO"
-                valueExpr="ID_CONCEPTO">
-            </dxo-lookup>
-        </dxi-column>
-        <dxi-column dataField="VALOR" caption="Valor" [width]="150" cssClass="clsEncabHis"></dxi-column>
-
-        <div *dxTemplate="let data of 'titNovedades'">
-            <div class="dx-fieldset-header">Novedades</div>
+    <div *ngIf="!filtroMasivo">
+        <div class="titulo2">
+            <h3>Liquidación de prestaciones</h3>
         </div>
 
-        <div *dxTemplate="let cellInfo of 'singleDropDownBoxEditor'">
-            <dx-drop-down-box
-                #ddLConceptos
-                [dropDownOptions]="dropDownOptions"
-                [dataSource]="GLConceptos"
-                [(value)]="cellInfo.value"
-                displayExpr="ID_CONCEPTO"
-                valueExpr="ID_CONCEPTO"
-                [deferRendering]="false"
-                placeholder="Concepto de nomina..."
-                [showClearButton]="true"
-                contentTemplate="contentTemplate"
-                >
+        <!-- NOVEDADES -->
+        <dx-data-grid 
+            id="GNovedades"
+            [dataSource]="DLiquidacionFinal"
+            [keyExpr]="llaveNov"
+            [allowColumnReordering]="true"
+            [showBorders]="true"
+            (onEditorPreparing)="onEditorPreparingNov($event)"
+            (onToolbarPreparing)="onToolbarPreparingNov($event)"
+            (onInitNewRow)="onInitNewRowNov($event)"
+            (onRowInserting)="insertRow($event)"
+            (onRowUpdating)="updatingRow($event)"
+            (onRowInserted)="insertRowLiq($event)"
+            (onRowUpdated)="updateRowLiq($event)"
+            (onRowRemoved)="deleteRowLiq($event)"
+            (onCellPrepared)="onCellPreparedLiq($event)">
+            
+            <dxo-paging [enabled]="true"></dxo-paging>
+            <dxo-editing 
+                mode="cell"
+                [useIcons]="true"
+                [allowUpdating]="true"
+                [allowDeleting]="true"
+                [allowAdding]="true">
+            </dxo-editing>
+            <dxi-column type="buttons" [width]="110" cssClass="clsEncabHis">
+                <dxi-button name="edit"></dxi-button>
+                <dxi-button name="delete"></dxi-button>
+            </dxi-column>
+            
+            <!--<dxo-selection  
+                mode="multiple">
+            </dxo-selection>  -->
 
-            <div *dxTemplate="let data of 'contentTemplate'">
-                <dx-data-grid
-                        #GListaEmple
-                        keyExpr="ID_CONCEPTO"
-                        [dataSource]="GLConceptos"
-                        [hoverStateEnabled]="true"
-                        height="100%"
-                        [columns]="gridColConceptos"
-                        [selectedRowKeys]="[cellInfo.value]"
-                        [focusedRowEnabled]="true"
-                        [focusedRowKey]="cellInfo.value"
-                        (onSelectionChanged)="onSelectionChanged($event.selectedRowKeys, cellInfo, data.component)"
-                >
-                    <dxo-selection mode="single"></dxo-selection>
-                    <dxo-scrolling mode="virtual"></dxo-scrolling>
-                    <dxo-search-panel [visible]="true"></dxo-search-panel>
-                    <dxo-paging [enabled]="true" [pageSize]="10"></dxo-paging>
-                </dx-data-grid>
+            <!--
+            <dxi-column dataField="ID_EMPLEADO" caption="Id Empleado" [allowEditing]="false" [width]="150" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="NOMBRE_COMPLETO" caption="Nombre" [allowEditing]="false" [width]="350" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="FECHA_DESDE" caption="Fecha" [setCellValue]="setCellFDesde" [width]="350" dataType="date">
+            </dxi-column>
+            <dxi-column dataField="FECHA_HASTA" caption="Fecha" [width]="350" dataType="date">
+            </dxi-column>
+            -->
+            <dxi-column
+                dataField="ID_CONCEPTO"
+                caption="Concepto"
+                cssClass="clsEncabHis"
+                [width]="300"
+                [setCellValue]="setCellConcepto"
+                editCellTemplate="singleDropDownBoxEditor">         
+                <dxo-lookup
+                    [dataSource]="GLConceptos"
+                    displayExpr="ID_CONCEPTO"
+                    valueExpr="ID_CONCEPTO">
+                </dxo-lookup>
+            </dxi-column>
+            <dxi-column dataField="NOMBRE" [allowEditing]="false" [width]="260" caption="Nombre" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="BASE" [setCellValue]="setCellBaseLiq" [width]="160" caption="Base" alignment="right" format="#,###" cssClass="clsEncabHis clsCellModif"></dxi-column>
+            <dxi-column dataField="DIAS" [width]="160" caption="Días" alignment="right" format="#,###" cssClass="clsEncabHis clsCellModif"></dxi-column>
+            <dxi-column dataField="TOTAL" [allowEditing]="false" [width]="160" caption="Total" alignment="right" format="#,###" cssClass="clsEncabHis"></dxi-column>
+
+            <div *dxTemplate="let data of 'titNovedades'">
+                <div class="dx-fieldset-header">Prestaciones</div>
             </div>
-            </dx-drop-down-box>
-        </div>
 
-    </dx-data-grid>
+            <div *dxTemplate="let cellInfo of 'singleDropDownBoxEditor'">
+                <dx-drop-down-box
+                    #ddLConceptos
+                    [dropDownOptions]="dropDownOptions"
+                    [dataSource]="GLConceptos"
+                    [(value)]="cellInfo.value"
+                    displayExpr="ID_CONCEPTO"
+                    valueExpr="ID_CONCEPTO"
+                    [deferRendering]="false"
+                    placeholder="Concepto de nomina..."
+                    [showClearButton]="true"
+                    contentTemplate="contentTemplate"
+                    >
+
+                <div *dxTemplate="let data of 'contentTemplate'">
+                    <dx-data-grid
+                            #GListaEmple
+                            keyExpr="ID_CONCEPTO"
+                            [dataSource]="GLConceptos"
+                            [hoverStateEnabled]="true"
+                            height="100%"
+                            [selectedRowKeys]="[cellInfo.value]"
+                            [focusedRowEnabled]="true"
+                            [focusedRowKey]="cellInfo.value"
+                            (onSelectionChanged)="onSelectionChanged($event.selectedRowKeys, cellInfo, data.component)"
+                    >
+                        <dxo-selection mode="single"></dxo-selection>
+                        <dxo-scrolling mode="virtual"></dxo-scrolling>
+                        <dxo-search-panel [visible]="true"></dxo-search-panel>
+                        <dxo-paging [enabled]="true" [pageSize]="10"></dxo-paging>
+
+                        <dxi-column dataField="ID_CONCEPTO" [width]="200" caption="Nombre" ></dxi-column>
+                        <dxi-column dataField="NOMBRE" caption="Nombre" ></dxi-column>
+
+                    </dx-data-grid>
+                </div>
+                </dx-drop-down-box>
+            </div>
+
+            <dxo-summary>
+                <dxi-total-item
+                    column="TOTAL"
+                    summaryType="sum"
+                    displayFormat="{0}"
+                    valueFormat="#,###">
+                </dxi-total-item>
+            </dxo-summary>
+
+
+        </dx-data-grid>
+    </div>  
 
     <!-- Cuando es individual x empleado -->
+    <!--
     <div *ngIf="!filtroMasivo"> 
         <dx-data-grid 
             #GLiqPrestaciones
@@ -258,10 +283,10 @@
             <dxo-selection mode="single"></dxo-selection>
 
             <dxi-column dataField="CONCEPTO" [allowEditing]="false" [width]="250" caption="Concepto" cssClass="clsEncabHis"></dxi-column>
-            <dxi-column *ngIf="this.elemActivos.Primas || this.elemActivos.Contrato" [setCellValue]="setCellPrima" cssClass="clsEncabHis" dataField="PRIMA" [width]="130" caption="Prima" alignment="right" format="#,##0" [editorOptions]="{ format: '0'}" ></dxi-column>
-            <dxi-column *ngIf="this.elemActivos.Cesantias || this.elemActivos.Contrato" [setCellValue]="setCellCesantias" cssClass="clsEncabHis" dataField="CESANTIAS" [width]="160" caption="Cesantías" alignment="right" format="#,##0" [editorOptions]="{ format: '0'}" ></dxi-column>
-            <dxi-column *ngIf="this.elemActivos.IntCesantias || this.elemActivos.Contrato" [setCellValue]="setCellInt" cssClass="clsEncabHis" dataField="INTERESES"  [width]="160" caption="Int Cesantías" alignment="right" format="#,##0" [editorOptions]="{ format: '0'}" ></dxi-column>
-            <dxi-column *ngIf="this.elemActivos.Vacaciones || this.elemActivos.Contrato" [setCellValue]="setCellVacaciones" cssClass="clsEncabHis" dataField="VACACIONES" [width]="250" caption="Vacaciones" alignment="right" format="#,##0" [editorOptions]="{ format: '0'}" ></dxi-column>
+            <dxi-column *ngIf="this.elemActivos.Primas || this.elemActivos.Contrato" [setCellValue]="setCellPrima" cssClass="clsEncabHis" dataField="PRIMA" [width]="130" caption="Prima" alignment="right" format="#,###"></dxi-column>
+            <dxi-column *ngIf="this.elemActivos.Cesantias || this.elemActivos.Contrato" [setCellValue]="setCellCesantias" cssClass="clsEncabHis" dataField="CESANTIAS" [width]="160" caption="Cesantías" alignment="right" format="#,###"></dxi-column>
+            <dxi-column *ngIf="this.elemActivos.IntCesantias || this.elemActivos.Contrato" [setCellValue]="setCellInt" cssClass="clsEncabHis" dataField="INTERESES"  [width]="160" caption="Int Cesantías" alignment="right" format="#,###"></dxi-column>
+            <dxi-column *ngIf="this.elemActivos.Vacaciones || this.elemActivos.Contrato" [setCellValue]="setCellVacaciones" cssClass="clsEncabHis" dataField="VACACIONES" [width]="250" caption="Vacaciones" alignment="right" format="#,###"></dxi-column>
             <dxi-column cssClass="clsEncabHis"></dxi-column>
 
             <dxo-editing 
@@ -285,6 +310,7 @@
             </dxi-item>
         </dx-form>
     </div> 
+    -->
 
     <!-- Cuando es filtro masivo -->
     <div *ngIf="filtroMasivo">
@@ -292,54 +318,112 @@
             #GLiqPrestMasiva
             id="GLiqPrestMasiva" 
             [dataSource]="DPrestMasiva"
-            keyExpr="ITEM"
+            keyExpr="ID_EMPLEADO"
+            [columnAutoWidth]="true"
+            columnResizingMode="nextColumn"
+            [allowColumnResizing]="true"
             [showBorders]="true"
             [rowAlternationEnabled]="true"
+            (onEditorPreparing)="onEditorPreparing($event)"
+            (onExporting)="onExporting($event)"
             (onKeyDown)="onKeyDown($event)"
             (onFocusedCellChanged)="onFocusedCellChanged($event)"
             (onRowUpdating)="updateRow($event)"
+            (onRowUpdated)="updateRowMas($event)"
             (onToolbarPreparing)="onToolbarPreparing($event)"
-            (onCellPrepared)="onCellPrepared($event)">
+            (onCellPrepared)="onCellPreparedMasiva($event)"
+            [customizeColumns]="customizeColumns"
+            (onCellPrepared)="onCellPreparedMasiva($event)"
+            (onContentReady)="onContentReadyMasiva($event)"
+            >
 
-            <dxo-selection mode="single"></dxo-selection>
+            <!--<dxo-selection mode="single"></dxo-selection> -->
             <dxo-search-panel [visible]="true"></dxo-search-panel>
-
+            <dxo-filter-row 
+                [visible]="true"></dxo-filter-row>
+            <dxo-header-filter 
+                [visible]="true"></dxo-header-filter>
+    
+            <!--
             <dxi-column dataField="ID_EMPLEADO" [allowEditing]="false" [width]="150" caption="Id Empleado" cssClass="clsEncabHis"></dxi-column>
             <dxi-column dataField="NOMBRE_COMPLETO" [allowEditing]="false" [width]="300" caption="Nombre" cssClass="clsEncabHis"></dxi-column>
-            <dxi-column dataField="BASICO" [allowEditing]="false" [width]="160" caption="Básico" alignment="right" format="#,###" cssClass="clsEncabHis"></dxi-column>
-            <dxi-column dataField="TRANSPORTE" [allowEditing]="false" [width]="160" caption="Transporte" alignment="right" format="#,###" cssClass="clsEncabHis"></dxi-column>
-            <dxi-column dataField="BASE" [setCellValue]="setCellBase" [width]="160" caption="Base" alignment="right" format="#,###" cssClass="clsEncabHis clsCellModif"></dxi-column>
-            <dxi-column dataField="DIAS" [setCellValue]="setCellDias" [width]="160" caption="Días" alignment="right" format="#,###" cssClass="clsEncabHis clsCellModif"></dxi-column>
-            <dxi-column dataField="TOTAL" [allowEditing]="false" [width]="160" caption="Total" alignment="right" format="#,###" cssClass="clsEncabHis"></dxi-column>
-            <dxi-column cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="BASICO" [allowEditing]="false" [width]="130" caption="Básico" alignment="right" format="#,###" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="TRANSPORTE" [allowEditing]="false" [width]="130" caption="Transporte" alignment="right" format="#,###" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column dataField="BASE" [setCellValue]="setCellBase" [width]="130" caption="Base" alignment="right" format="#,###" cssClass="clsEncabHis clsCellModif"></dxi-column>
+            <dxi-column dataField="DIAS" [setCellValue]="setCellDias" [width]="100" caption="Días Base" alignment="right" format="#,###" cssClass="clsEncabHis clsCellModif"></dxi-column>
+            <dxi-column dataField="DIAS_NOV" [setCellValue]="setCellDias" [width]="100" caption="Días" alignment="right" format="#,###" cssClass="clsEncabHis clsCellModif"></dxi-column>
+            <dxi-column dataField="TOTAL" [allowEditing]="false" [width]="130" caption="Total" alignment="right" format="#,###" cssClass="clsEncabHis"></dxi-column>
+            <dxi-column caption="Acciones" cellTemplate="cellAcciones" cssClass="clsEncabHis"></dxi-column>
+            -->
 
             <dxo-editing 
                 mode="cell"
                 [allowUpdating]="true">
             </dxo-editing>
-            <dxo-export [enabled]="true" fileName="{{archExcelLiq}}"></dxo-export>
+            <dxo-export [enabled]="true" [allowExportSelectedData]="true"></dxo-export>
+
+            <div *dxTemplate="let liqData of 'cellAcciones'" style="padding-top: 0px; padding-bottom: 0px;">
+                <a *ngIf="this.globals.dat_liq.id_rep != ''" href="javascript:;" 
+                    (click)="imprimirLiquida(liqData.data.ID_EMPLEADO)">
+                    <img alt='ImageHere' style='height: 16px; padding: 0px 3px 0px 0px;' [src]='imgImprimir' />
+                </a>
+                <a href="javascript:;" >
+                    <img alt='ImageHere' style='height: 16px; padding: 0px 3px 0px 0px;' [src]='imgEliminarLiq' />
+                </a>
+            </div>
+
+            <div *dxTemplate="let data of 'cambioDias'">
+                <dx-number-box
+                    format="#,##0" 
+                    [(value)]="valAjusteDias"
+                    placeholder="Días a cambiar"
+                    stylingMode="filled"
+                    mode="text"
+                >
+                    <dxi-button
+                        name="cambiardias"
+                        location="after"
+                        [options]="btnCambioDias"
+                    ></dxi-button>
+                </dx-number-box>
+            </div>
+    
+            <dxo-summary>
+                <dxi-total-item
+                    column="TOTAL_DEVENGADO"
+                    summaryType="sum"
+                    displayFormat="{0}"
+                    valueFormat="#,###">
+                </dxi-total-item>
+                <dxi-total-item
+                    column="TOTAL_DEDUCIDO"
+                    summaryType="sum"
+                    displayFormat="{0}"
+                    valueFormat="#,###">
+                </dxi-total-item>
+                <dxi-total-item
+                    column="TOTAL"
+                    summaryType="sum"
+                    displayFormat="{0}"
+                    valueFormat="#,###">
+                </dxi-total-item>
+            </dxo-summary>
 
         </dx-data-grid>
 
     </div>
 
     <br>
-    <dx-button
-        stylingMode="contained"
-        text="GUARDAR LIQUIDACION"
-        type="success"
-        [width]="120"
-        (onClick)="clickLiquida($event)">
-    </dx-button>
-    <dx-button
-        stylingMode="contained"
-        text="IMPRIMIR LIQUIDACION"
-        type="accept"
-        [width]="120"
-        (onClick)="imprimirLiquida($event)">
-    </dx-button>
+    <button pButton 
+        type="button" 
+        label="Imprimir documento" 
+        icon="pi pi-print" 
+        class="p-button-lg p-button-help" 
+        (click)="imprimirLiquida($event)">
+    </button>
 
 </div>
+
 
 <dx-load-panel
     #loadPanel
@@ -363,3 +447,5 @@
         </ng-template>
 </p-dialog>
 <app-popvisor></app-popvisor>
+
+<dx-toast [(visible)]="isVisible" [type]="type" [message]="message"></dx-toast>

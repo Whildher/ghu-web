@@ -1,8 +1,41 @@
-<p-toolbar id="titPrincipal">
-    <div class="p-toolbar-group-left">
-        <h3 class="titPpal">Gestión Humana</h3>
+
+<div class="dx-fieldset">
+    <div class="dx-field">
+        <div class="dx-field-label titulo2">Buscar liquidación por empleado:</div>
+        <div class="dx-field-value">
+            <dx-drop-down-box
+                #ddLEmple
+                [(value)]="gridBoxValue"
+                [(opened)]="isGridBoxOpened"
+                valueExpr="ID"
+                [deferRendering]="false"
+                [displayExpr]="seleccEmpleado"
+                placeholder="Seleccione un empleado..."
+                [dropDownOptions]="dropDownOptions"
+                [showClearButton]="true"
+                [dataSource]="GLEmpleados"
+                (onOptionChanged)="onGridBoxOptionChanged($event)"
+                >
+
+                <div *dxTemplate="let data of 'content'">
+                    <dx-data-grid
+                            #GListaEmple
+                            [dataSource]="GLEmpleados"
+                            [hoverStateEnabled]="true"
+                            height="100%"
+                            [columns]="gridColumns"
+                            [(selectedRowKeys)]="gridBoxValue"
+                    >
+                        <dxo-selection mode="single"></dxo-selection>
+                        <dxo-scrolling mode="virtual"></dxo-scrolling>
+                        <dxo-search-panel [visible]="true"></dxo-search-panel>
+                        <dxo-paging [enabled]="true" [pageSize]="10"></dxo-paging>
+                    </dx-data-grid>
+                </div>
+            </dx-drop-down-box>
+        </div>
     </div>
-</p-toolbar>
+</div>
 
 <dx-data-grid 
     #GLiquidaciones
@@ -12,6 +45,7 @@
     [showBorders]="true"
     [allowColumnResizing]="true"
     [rowAlternationEnabled]="true"
+    [loadPanel]="{ shading: true }"
     (onToolbarPreparing)="onToolbarPreparing($event)">
 
     <dxo-filter-row 
@@ -38,6 +72,7 @@
     <dxo-selection mode="single"></dxo-selection>
 
     <dxi-column dataField="DOCUMENTO" [width]="80" caption="Id Liquidación" cellTemplate="cellTplIrA"></dxi-column>
+    <dxi-column dataField="REPORTE" [width]="80" caption="Imprimir" cellTemplate="cellImprimir"></dxi-column>
     <dxi-column dataField="FECHA" [width]="110" caption="Fecha Generación" format="MMM dd yyyy"></dxi-column>
     <dxi-column dataField="EMPLEADO" [width]="330" caption="Empleado" ></dxi-column>
     <dxi-column dataField="PERIODO" caption="Periodo" ></dxi-column>
@@ -48,7 +83,14 @@
     <dxo-export [enabled]="true" fileName="{{archExcelLiq}}"></dxo-export>
 
     <div *dxTemplate="let liqData of 'cellTplIrA'">
-        <a href="javascript:void(null);" (click)="IrALiquidacion(liqData.data.ID_APLICACION, liqData.data.TIPO)">{{liqData.value}}</a>
+        <a href="javascript:void(null);" (click)="IrALiquidacion(liqData.data.ID_APLICACION,  liqData.data.TIPO, liqData.data.DOCUMENTO, liqData.data.FILTRO)">{{liqData.value}}</a>
+    </div>
+
+    <div *dxTemplate="let liqData of 'cellImprimir'">
+        <a *ngIf="liqData.data.REPORTE != ''" href="javascript:;" 
+            (click)="imprimirLiquida(liqData.data.ID_APLICACION, liqData.data.REPORTE, liqData.data.DOCUMENTO, liqData.data.FILTRO)">
+            <img alt='ImageHere' style='width:20px; height:20px; padding: 0px 3px 0px 0px;' [src]='imgImprimir' />
+        </a>
     </div>
 
     <div *dxTemplate="let data of 'titLiquidaciones'">
@@ -57,14 +99,7 @@
     
 </dx-data-grid>
 
-<dx-button
-    stylingMode="contained"
-    text="IMPRIMIR LIQUIDACION"
-    type="accept"
-    [width]="120"
-    (onClick)="imprimirLiquida($event)">
-</dx-button>
-
+<!--
 <div class="card">
     <p-dataView [value]="items" [paginator]="false" [rows]="9" layout="grid">
         <ng-template let-item pTemplate="gridItem">
@@ -81,4 +116,205 @@
     </ng-template>
     </p-dataView>
 </div>
+-->
+<div>
+    <div class="dx-field-label tituloLiq">Liquidaciones</div>
+    <dx-tile-view
+        #tileViewL
+        [items]="items"
+        [height]="150"
+        [baseItemHeight]="90"
+        [baseItemWidth]="200"
+        width="100%"
+        [itemMargin]="10"
+        direction="vertical"
+        itemTemplate="list-item"
+        (onItemClick)="genLiqPres($event)"
+        >
+        <div *dxTemplate="let data of 'list-item'; let index = index" class="cssliq">
+            <div class="letraItem">{{ data.abrev }}</div>
+            <div class="titulo-tile">{{ data.nomliq }}</div>
+        </div>
+    </dx-tile-view>
+</div>
 
+<div class="wrapmnuinf">
+    <div class="dx-field-label tituloLiq">Informes</div>
+    <dx-tile-view
+        #tileViewI
+        [items]="menuinf"
+        [height]="210"
+        [baseItemHeight]="90"
+        [baseItemWidth]="200"
+        width="100%"
+        [itemMargin]="10"
+        direction="vertical"
+        itemTemplate="list-item"
+        (onItemClick)="proceso($event)"
+        >
+        <div *dxTemplate="let data of 'list-item'; let index = index" class="cssinf">
+            <div class="letraItem">{{ data.letra }}</div>
+            <div class="titulo-tile">{{ data.titulo }}</div>
+        </div>
+    </dx-tile-view>
+</div>
+
+<div>
+    <div class="dx-field-label tituloLiq">Procesos</div>
+    <dx-tile-view
+        #tileViewP
+        [items]="menupro"
+        [height]="150"
+        [baseItemHeight]="90"
+        [baseItemWidth]="200"
+        width="100%"
+        [itemMargin]="10"
+        direction="vertical"
+        itemTemplate="list-item"
+        (onItemClick)="proceso($event)"
+        >
+        <div *dxTemplate="let data of 'list-item'; let index = index" class="csspro">
+            <div class="letraItem">{{ data.letra }}</div>
+            <div class="titulo-tile">{{ data.titulo }}</div>
+        </div>
+    </dx-tile-view>
+</div>
+
+<div>
+    <div class="dx-field-label tituloLiq">Especiales</div>
+    <dx-tile-view
+        #tileViewE
+        [items]="menuesp"
+        [height]="150"
+        [baseItemHeight]="90"
+        [baseItemWidth]="200"
+        width="100%"
+        [itemMargin]="10"
+        direction="vertical"
+        itemTemplate="list-item"
+        >
+        <div *dxTemplate="let data of 'list-item'; let index = index" class="cssesp">
+            <div class="letraItem">{{ data.letra }}</div>
+            <div class="titulo-tile">{{ data.titulo }}</div>
+        </div>
+    </dx-tile-view>
+</div>
+
+<!--
+<div class="container row">
+    <div class="items">
+        <div class="items-head">
+            <p>Liquidaciones</p>
+            <hr>
+        </div>
+      
+        <div class="items-body">
+            <div *ngFor="let item of items" class="items-body-content" (click)="genLiq('x', item.idliq, item.nomliq)">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">{{item.nomliq}}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="items">
+        <div class="items-head">
+          <p>Informes</p>
+          <hr>
+        </div>
+        
+        <div class="items-body">
+            <div class="items-body-content" (click)="informes('dev-emp-mes')">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Total devengados por empleado mes</span>
+            </div>
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Total devengados por meses</span>
+            </div>
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Planilla general</span>
+            </div>
+            <div class="items-body-content" (click)="proceso('liqmensual')">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Planilla mensual</span>
+            </div>
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Reporte a plataforma</span>
+            </div>
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">General de empleados</span>
+            </div>
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Vencimientos de contratos</span>
+            </div>
+        </div>
+  
+    </div>
+  
+    <div class="items">
+        <div class="items-head">
+            <p>Procesos</p>
+            <hr>
+        </div>
+        
+        <div class="items-body">
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Generación contable</span>
+            </div>
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Generacion a PILA</span>
+            </div>
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Contratos</span>
+            </div>
+            <div class="items-body-content" (click)="proceso('electronica')">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Nómina Electrónica</span>
+            </div>
+
+        </div>
+    </div>
+  
+    <div class="items">
+        <div class="items-head">
+            <p>Miscelánea</p>
+            <hr>
+        </div>
+        
+        <div class="items-body">
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Configuración notificaciones</span>
+            </div>
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Certificación Laboral</span>
+            </div>
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Carta terminación contrato</span>
+            </div>
+            <div class="items-body-content">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Plantilla creación empleados</span>
+            </div>
+            <div class="items-body-content" (click)="navegarFila()">
+                <i class="pi pi-angle-right"></i>
+                <span class="item-nombre">Carta apertura cuenta</span>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+-->
+  
+
+  

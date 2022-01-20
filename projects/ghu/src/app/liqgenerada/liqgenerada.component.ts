@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { Empleados, HistoricoLiq, LiqCompoAct, ListaEmpleados, Novedades } from '../servicios/_empleados.class';
+import { Conceptos, DLiquidacion, Empleados, HistoricoLiq, LiqCompoAct, ListaEmpleados, Novedades } from '../servicios/_empleados.class';
 import { SdatosService } from '../servicios/_sdatos.service';
 import 'devextreme/dist/css/dx.light.css';
 import { DxDataGridComponent, DxDropDownBoxComponent, DxDataGridModule, DxButtonModule } from 'devextreme-angular';
@@ -14,6 +14,10 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import dxDataGrid from 'devextreme/ui/data_grid';
 import { SVisorService } from '../visor/models/s-visor.service';
+import { GlobalsService } from '../globals.service';
+import { AppsettingsService } from '../appsettings.service';
+import { Workbook } from 'exceljs';
+import { exportDataGrid } from 'devextreme/excel_exporter';
 
 @Component({
   selector: 'app-liqgenerada',
@@ -27,6 +31,7 @@ export class LiqgeneradaComponent implements OnInit {
   @ViewChild('GLiqPrestaciones', { static: false }) dataGridPres?: DxDataGridComponent;
   @ViewChild('GLiqOtros', { static: false }) dataGridOtros?: DxDataGridComponent;
   @ViewChild(DxDataGridComponent, { static: false }) dataGrid?: DxDataGridComponent;
+  @ViewChild('GLiqPrestMasiva', { static: false }) gridNomina: DxDataGridComponent;
 
   PrmGeneracion: any;
   DFEmpleados: Empleados = new Empleados();
@@ -40,6 +45,7 @@ export class LiqgeneradaComponent implements OnInit {
   gridColConceptos: any = ['ID_CONCEPTO', 'NOMBRE'];
   gridBoxValueConcepto: number[] = [];
   valSeleccConcepto: string = '';
+  llaveNov: string[] = ["ID_CONCEPTO"];
 
   DLiquidaciones: HistoricoLiq[] = [];
   DPrestaciones: any;
@@ -47,9 +53,13 @@ export class LiqgeneradaComponent implements OnInit {
   DGrupos: any;
   DEmpresas: any;
   DNovedades: Novedades[] = [];
+  DLiquidacionFinal: DLiquidacion[] = [];
   GLConceptos: any;
   filasInactivas: number[];
-
+  campoCambio: string;
+  imgImprimir: string = '../assets/printliq.png';
+  imgEliminarLiq: string = '../assets/elimliq.png';
+  
   colBusq: any = "GRUPO";
   colBusqEmpre: any = "ID_EMPRESA";
   loadingVisible = false;
@@ -64,16 +74,30 @@ export class LiqgeneradaComponent implements OnInit {
   itemsInformes: MenuItem[] = [];
   gridPresExp: any;
   dropDownOptions: object;
+  usuario: string;
+  modoOperacion: string;
+  btnCambioDias: any;
+  btnEliminarLiq: any;
+  valAjusteDias: number;
+  conc_dev: any;
+  conc_ded: any;
+  cfg_concep: any;
+  novedades: any;
+  num_liq: string = "";
 
   // Nombre de archivo de exportación
   archExcelLiq: string = "";
   archExcelLiqHis: string = "";
+  archExcelNomina: string = "";
 
   // Alert de mensajes
   displayModal: boolean = false;
   errMsg: string = "";
   errTit: string = "";
   minFecha: Date = new Date('2021,9,1');
+  isVisible = false;
+  type = 'info';
+  message = 'msg';
 
   // Personalización
   elemActivos: LiqCompoAct = new LiqCompoAct(false,false,false,false,false);
@@ -92,7 +116,9 @@ export class LiqgeneradaComponent implements OnInit {
               private route: ActivatedRoute,
               private router: Router,
               public datepipe: DatePipe,
-              private SVisor: SVisorService) 
+              private SVisor: SVisorService,
+              public globals: GlobalsService,
+              private appSettingsService: AppsettingsService) 
     { 
     const prm = { FILTRO: '' };
     this._sdatos.getDatos('LISTA EMPLEADOS',prm).subscribe((data: any)=> {
@@ -116,6 +142,7 @@ export class LiqgeneradaComponent implements OnInit {
     this.editorPreparing = this.editorPreparing.bind(this);
     this.setCellDias = this.setCellDias.bind(this);
     this.setCellBase = this.setCellBase.bind(this);
+    this.setCellBaseLiq = this.setCellBaseLiq.bind(this);
     this.setCellPrima = this.setCellPrima.bind(this);
     this.setCellCesantias = this.setCellCesantias.bind(this);
     this.setCellInt = this.setCellInt.bind(this);
@@ -126,6 +153,10 @@ export class LiqgeneradaComponent implements OnInit {
     this.setCellFDesde = this.setCellFDesde.bind(this);
     this.onCellPreparedNov = this.onCellPreparedNov.bind(this);
     this.onSelectionChanged = this.onSelectionChanged.bind(this);
+    this.insertRow = this.insertRow.bind(this);
+    this.updatingRow = this.updatingRow.bind(this);
+    this.setCellConcepto = this.setCellConcepto.bind(this);
+    this.customizeColumns = this.customizeColumns.bind(this);
 
   }
 
@@ -183,8 +214,148 @@ export class LiqgeneradaComponent implements OnInit {
     newData.FECHA_DESDE = value;
     this.minFecha = value;
   }
+  setCellConcepto (rowData: any, value: any, currentRowData: any, elem: any) {
+    const dcon = this.GLConceptos.find((s: any) => s.ID_CONCEPTO === value)!;
+    if (dcon != undefined) {
+      rowData.ID_CONCEPTO = value;
+      rowData.NOMBRE = dcon.NOMBRE;
+      console.log('DATOS....',elem);
+    }
+  }
 
-  // Nueva
+  setCellConceptoMas(rowData: any, value: any, currentRowData: any, col: any) {
+    console.log("Actualizar celda....",currentRowData,value) 
+    // Asigna valor si es devengado o deducido
+    if(this.conc_dev.match(col)) rowData[col] = Math.abs(value);
+    if(this.conc_ded.match(col)) rowData[col] = -Math.abs(value);
+    if(!this.conc_ded.match(col) && !this.conc_dev.match(col)) rowData[col] = Math.abs(value);
+
+    // Marca la celda como cambiada
+    if (!currentRowData.V__CAMBIOS.match(col+',')) {
+      rowData.V__CAMBIOS = currentRowData.V__CAMBIOS + col + ',';
+    }
+
+    // Totaliza
+    if(col !== "DIAS") {
+      let tdev = 0;
+      let tded = 0;
+      for (let k = 0; k < this.conc_dev.split(',').length-1; k++) {
+        const colliq = this.conc_dev.split(',')[k];
+        tdev += (colliq !== col) ? Number(currentRowData[colliq]) : Math.abs(Number(value));
+      }
+      for (let k = 0; k < this.conc_ded.split(',').length-1; k++) {
+        const colliq = this.conc_ded.split(',')[k];
+        tded += (colliq !== col) ? Number(currentRowData[colliq]) : -Math.abs(Number(value));
+      }
+      rowData.TOTAL_DEVENGADO = tdev;
+      rowData.TOTAL_DEDUCIDO = tded;
+      rowData.TOTAL = tdev - Math.abs(tded);
+    }
+
+  }
+
+  // Inserta nueva novedad
+  async insertRow(e: any) {
+    for (let key in e.data) {
+      if ((e.data[key] === "" || e.data[key] === null || Number(e.data[key]) == 0) && key.match("ID_CONCEPTO|BASE|DIAS|TOTAL"))
+      {
+        this.displayModal = true;
+        this.errMsg = 'Concepto o Valor debe ser diferente de nulos o ceros!';
+        this.errTit = "Valores nulos";
+        this.loadingVisible = false;
+        e.cancel = true;
+        return;
+      }
+    }
+
+  }
+
+  // Valida datos completos
+  updatingRow(e: any) {
+    for (let key in e.newData) {
+      if ((e.newData[key] === "" || e.newData[key] === null || Number(e.newData[key]) == 0) && key.match("ID_CONCEPTO|BASE|DIAS|TOTAL"))
+      {
+        this.displayModal = true;
+        this.errMsg = 'Concepto o Valor debe ser diferente de nulos o ceros!';
+        this.errTit = "Valores nulos";
+        this.loadingVisible = false;
+        e.cancel = true;
+        return;
+      }
+    }
+    for (let key in e.oldData) {
+      if ((e.newData[key] === "" || e.newData[key] === null || Number(e.newData[key]) == 0) && key.match("ID_CONCEPTO|BASE|DIAS|TOTAL"))
+      {
+        this.displayModal = true;
+        this.errMsg = 'Concepto o Valor debe ser diferente de nulos o ceros!';
+        this.errTit = "Valores nulos";
+        this.loadingVisible = false;
+        e.cancel = true;
+        return;
+      }
+    }
+  }
+
+  insertRowLiq(e: any) {
+    this.AjusteLiquidacion(e.data, e.data, e.data, this.id_Liquidacion);
+  }
+  updateRowLiq(e: any) {
+    this.AjusteLiquidacion(e.data, e.data, e.data, this.id_Liquidacion);
+  }
+  deleteRowLiq(e: any) {
+    e.data.OPCION = 'eliminar';
+    this.AjusteLiquidacion(e.data, e.data, e.data, 'eliminar');
+  }
+
+
+  // Evita eliminar ciertas filas
+  onCellPreparedLiq(e: any) {
+    if (e.columnIndex == 0 && e.rowType == "data") {  
+      if (e.data.OPCION == 'FIJA')  // estas filas no se permiten eliminar 
+      { 
+        const delButton = e.cellElement.getElementsByClassName('dx-link-delete');
+        if (delButton !== undefined) delButton[0].remove();
+      }
+    }  
+    if (e.rowType === 'totalFooter') {
+      if (e.summaryItems.length > 0 && e.summaryItems[0].value > 0) {
+        e.cellElement.querySelector(".dx-datagrid-summary-item").style.fontWeight = 'bold';
+        e.cellElement.querySelector(".dx-datagrid-summary-item").style.color = '#064e8d';
+        e.cellElement.querySelector(".dx-datagrid-summary-item").style.fontSize = '20px';
+      }
+    }
+  }
+
+  // Evita eliminar ciertas filas
+  onCellPreparedMasiva(e: any) {
+    if (e.rowType === 'totalFooter') {
+      if (e.summaryItems.length > 0 && e.summaryItems[0].value != 0) {
+        e.cellElement.querySelector(".dx-datagrid-summary-item").style.fontWeight = 'bold';
+        e.cellElement.querySelector(".dx-datagrid-summary-item").style.color = '#064e8d';
+        e.cellElement.querySelector(".dx-datagrid-summary-item").style.fontSize = '20px';
+      }
+    }
+    if (e.rowType === "data" && e.column.dataField.match("TOTAL_DEVENGADO|TOTAL_DEDUCIDO")) {
+      e.cellElement.style.backgroundColor = "#cae6fc";
+    }
+    if (e.rowType === "data" && e.column.dataField === "TOTAL") {
+      e.cellElement.style.backgroundColor = "#90cd93";
+      e.cellElement.style.fontWeight = 'bold';
+    }
+    if (e.rowType === 'header') {
+      e.cellElement.style.backgroundColor = "rgb(17, 65, 128)";
+      e.cellElement.style.color = 'white';
+      e.cellElement.style.textAlign = 'center';
+    }
+    if(e.rowType === "data" && !e.column.dataField.match("TOTAL_DEVENGADO|TOTAL_DEDUCIDO|TOTAL|ID_EMPLEADO|APELLIDO_COMPLETO") ) {
+      if(e.data.V__CAMBIOS !== "")
+        if (e.data.V__CAMBIOS.match(e.column.dataField+',')) {
+          e.cellElement.style.background = "lightsalmon" 
+        }
+    }
+  }
+
+    // Nueva
   clickNueva(e: any) {
     // Prepara nueva liquidación
 
@@ -220,7 +391,6 @@ export class LiqgeneradaComponent implements OnInit {
   
   // Pre-liquida
   clickLiquida(e: any) {
-
     this.gridPresExp = Object.assign({}, this.dataGridPres);
 
     // Valida que estén completos los datos
@@ -263,8 +433,11 @@ export class LiqgeneradaComponent implements OnInit {
                   FECHA_FIN_BASE: fBH, 
                   ID_LIQ: this.id_Liquidacion, 
                   EMPRESA: this.valSeleccEmpresa,
-                  GRUPO: this.valSeleccGrupo
+                  GRUPO: this.valSeleccGrupo,
+                  GEN_NOM: this.DFEmpleados.GEN_NOM,
+                  ELIM_LIQ: this.DFEmpleados.ELIM_LIQ
                 };
+    console.log(prm);
     this._sdatos.getDatos('PRE LIQUIDACION',prm).subscribe((data: any)=> {
       
       var datRes = JSON.parse(data);
@@ -280,6 +453,15 @@ export class LiqgeneradaComponent implements OnInit {
       // Asigna datos del histórico
       this.DLiquidaciones = JSON.parse(data);
       
+      // Datos globales de la liquidación
+      this.globals.dat_liq =  { id_apl: this.DLiquidaciones[0].ID_APL?? '', 
+                                id_liq: this.DLiquidaciones[0].ID_LIQ?? '', 
+                                nom_liq: this.id_Liquidacion, 
+                                filtro: this.valSeleccEmpleado,
+                                num_liq: this.DLiquidaciones[0].NUM_LIQ?.replace('|',' ')?? '',
+                                id_rep: this.DLiquidaciones[0].ID_RPT?? ''
+                              };
+
       // Liquida prestaciones
       const prmLiq =  { ID_EMPLEADO: this.valSeleccEmpleado, 
                         FECHA_DESDE: fD, 
@@ -289,6 +471,7 @@ export class LiqgeneradaComponent implements OnInit {
                         EMPRESA: this.valSeleccEmpresa ?? "",
                         GRUPO: this.valSeleccGrupo ?? ""
                       };
+      console.log(prmLiq);
       this._sdatos.getDatos('LIQUIDACION PRESTACIONES',prmLiq).subscribe((data: any)=> {
         
         var datRes = JSON.parse(data);
@@ -312,20 +495,10 @@ export class LiqgeneradaComponent implements OnInit {
         // Si es un solo empleado
         if (!this.filtroMasivo) {
 
-          this.DPrestaciones = datRes;
+          this.DLiquidacionFinal = datRes;
           const valLiq = JSON.parse(data);
           this.TotalLiquidacion = valLiq[0].TOTAL.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-          // Asigna sección de totales
-          this.DFEmpleados.TVPRIMA = valLiq[1].PRIMA;
-          this.DFEmpleados.TDPRIMA = valLiq[2].PRIMA;
-          this.DFEmpleados.TVCES = valLiq[1].CESANTIAS;
-          this.DFEmpleados.TDCES = valLiq[2].CESANTIAS;
-          this.DFEmpleados.TVINT = valLiq[1].INTERESES;
-          this.DFEmpleados.TDINT = valLiq[2].INTERESES;
-          this.DFEmpleados.TVVAC = valLiq[1].VACACIONES;
-          this.DFEmpleados.TDVAC = valLiq[2].VACACIONES;
-          this.DFEmpleados.TTOT = valLiq[0].TOTAL;
         }
 
         // Si es masiva 
@@ -337,6 +510,113 @@ export class LiqgeneradaComponent implements OnInit {
 
       });
     });
+  }
+
+  consultaLiquidacion(NumLiq: string) {
+    this.showLoadPanel();
+
+    const prmLiq =  {  
+      NUM_LIQ: NumLiq, 
+      ID_LIQ: this.id_Liquidacion
+    };
+    console.log(prmLiq);
+    this._sdatos.getDatos('CONSULTA LIQUIDACIONES',prmLiq).subscribe((data: any)=> {
+
+      switch (this.id_Liquidacion) {
+        case "GHU-027":
+          this.id_Liquidacion = 'Nómina';
+          break;
+      
+        default:
+          break;
+      }
+
+      var datRes = JSON.parse(data);
+      if (datRes == null)
+      {
+        this.displayModal = true;
+        this.errMsg = `Error en la consulta de la liquidación. Nulo</i>`;
+        this.errTit = "Error consultando";
+        this.loadingVisible = false;
+        return;
+      }
+      if (datRes[0].ErrMensaje != '')
+      {
+        this.displayModal = true;
+        this.errMsg = `Error en la consulta de la liquidación. <br /><i>` + datRes[0].ErrMensaje + `</i>`;
+        this.errTit = "Error consultando";
+        this.loadingVisible = false;
+        return;
+      }
+
+      // Modo consulta
+      if (datRes[0].MODO === 'masiva')
+        this.filtroMasivo = true;
+      else
+        this.filtroMasivo = false;
+
+      // Si es un solo empleado
+      if (!this.filtroMasivo) {
+
+        this.DLiquidaciones = datRes[0].HISTORICO;
+        this.DLiquidacionFinal = datRes[0].PRESTACIONES;
+        const valLiq = datRes[0].PRESTACIONES;
+        this.TotalLiquidacion = valLiq[0].TOTAL.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+        // Datos globales de la liquidación
+        this.globals.dat_liq =  { id_apl: datRes[0].ID_APL?? '', 
+                                  id_liq: datRes[0].ID_LIQ?? '', 
+                                  nom_liq: this.id_Liquidacion, 
+                                  filtro: this.valSeleccEmpleado,
+                                  num_liq: datRes[0].NUM_LIQ?.replace('|',' ')?? '',
+                                  id_rep: datRes[0].ID_RPT?? ''
+                                };
+      }
+
+      // Si es masiva 
+      else {
+        const datRes = JSON.parse(data);
+        this.DPrestMasiva = datRes[0].NOMINA;
+
+        // Datos globales de la liquidación
+        this.globals.dat_liq =  { id_apl: datRes[0].ID_APL?? '', 
+                                  id_liq: datRes[0].ID_LIQ?? '', 
+                                  nom_liq: this.id_Liquidacion, 
+                                  filtro: this.valSeleccEmpleado,
+                                  num_liq: datRes[0].NUM_LIQ?.replace('|',' ')?? '',
+                                  id_rep: datRes[0].ID_RPT?? ''
+                                };
+
+        // Conceptos DV y DD
+        const concep = JSON.parse(datRes[0].CONCEPTOS);
+        this.conc_dev = concep.DEVENGADOS;
+        this.conc_ded = concep.DEDUCIDOS;
+
+        // Configuración conceptos extendidos
+        this.cfg_concep = datRes[0].CONFIG_CONCEPTOS;
+
+        // Novedades detalladas
+        this.novedades = datRes[0].NOVEDADES;
+      }
+
+      this.btnCambioDias = {
+        icon: 'edit',
+        type: 'default',
+        onClick: this.ajusteDias.bind(this)
+      }
+      this.btnEliminarLiq = {
+        icon: 'trash',
+        onClick: this.ajusteDias.bind(this)
+      }
+
+      // Parámetros
+      this.DFEmpleados.ID_EMPLEADO = datRes[0].ID_EMPLEADO;
+      this.DFEmpleados.NOMBRE_COMPLETO = datRes[0].NOMBRE_COMPLETO;
+      this.DFEmpleados.FECHA_INICIAL = datRes[0].FECHA_INICIAL;
+      this.DFEmpleados.FECHA_FINAL = datRes[0].FECHA_FINAL;
+      this.loadingVisible = false;
+    });
+
   }
 
   onToolbarPreparing(e: any) {
@@ -360,6 +640,10 @@ export class LiqgeneradaComponent implements OnInit {
             text: 'Asignar Salario Básico a valores nulos/cero',
             onValueChanged: this.onValueChangeBasicoCero.bind(this)
         }
+      },
+      {
+        location: 'before',
+        template: 'cambioDias'
       },
       {
         location: 'after',
@@ -473,6 +757,11 @@ export class LiqgeneradaComponent implements OnInit {
     currentRowData.VACACIONES = value;
     this.AjusteLiquidacion(newData, value, currentRowData, 'VACACIONES');
   }
+  setCellBaseLiq(newData: any, value: any, currentRowData: any) {
+    newData.BASE = value;
+    newData.TOTAL = value;
+    this.campoCambio = "BASE";
+  }
   onEditingStartLiqInd(e: any) {
     if(e.data.CONCEPTO === 'Liquidado') {
       e.cancel = true;
@@ -486,16 +775,30 @@ export class LiqgeneradaComponent implements OnInit {
           }
       }
   }
+  onEditorPreparing(e: any) {
+    if (e.dataField === undefined) return;
+    if (e.parentType == "dataRow") {
+        e.editorOptions.onFocusIn = (args: any) => {            
+          var input = args.element.querySelector(".dx-texteditor-input");  
+          if(input != null){  
+              input.select();  
+          }  
+        }
+      }
+  }
 
   // Liquida ajuste
   AjusteLiquidacion(newData: any, value: any, currentRowData: any, colmodif: string) {
     const prmLiq =  { 
       ID_EMPLEADO: this.valSeleccEmpleado, 
       DATOS_CAMBIO: currentRowData, 
-      DATOS_TOTAL: !this.filtroMasivo ? this.DPrestaciones : this.DPrestMasiva,
-      ID_LIQ: this.id_Liquidacion
+      DATOS_TOTAL: !this.filtroMasivo ? this.DLiquidacionFinal : currentRowData, //this.DPrestMasiva,
+      ID_LIQ: this.id_Liquidacion,
+      NUM_LIQ: !this.filtroMasivo ? this.globals.dat_liq.num_liq : this.num_liq
     };
+    console.log("Antes de ajuste liq....",prmLiq);
     this._sdatos.getDatos('AJUSTE PRESTACIONES',prmLiq).subscribe((data: any)=> {
+      console.log("Despues de ajuste liq....",data);
       const valLiq = JSON.parse(data);
       if (valLiq[0].ErrMensaje != '')
       {
@@ -508,10 +811,10 @@ export class LiqgeneradaComponent implements OnInit {
 
       if (!this.filtroMasivo) {
         this.TotalLiquidacion = valLiq[0].TOTAL.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        this.DPrestaciones = JSON.parse(data);
+        this.DLiquidacionFinal = JSON.parse(data);
 
         // Asigna sección de totales
-        this.DFEmpleados.TVPRIMA = valLiq[1].PRIMA;
+        /*this.DFEmpleados.TVPRIMA = valLiq[1].PRIMA;
         this.DFEmpleados.TVCES = valLiq[1].CESANTIAS;
         this.DFEmpleados.TVINT = valLiq[1].INTERESES;
         this.DFEmpleados.TVVAC = valLiq[1].VACACIONES;
@@ -519,13 +822,30 @@ export class LiqgeneradaComponent implements OnInit {
         this.DFEmpleados.TDCES = valLiq[2].CESANTIAS;
         this.DFEmpleados.TDINT = valLiq[2].INTERESES;
         this.DFEmpleados.TDVAC = valLiq[2].VACACIONES;
-        this.DFEmpleados.TTOT = valLiq[0].TOTAL;
+        this.DFEmpleados.TTOT = valLiq[0].TOTAL;*/
       }
       else {
-        const ix = currentRowData.ITEM - 1;
+        const dnom = this.DPrestMasiva.find((s: any) => s.ID_EMPLEADO === valLiq[0].ID_EMPLEADO)!;
+        if (dnom !== undefined) {
+          dnom[valLiq[0].ID_CONCEPTO] = valLiq[0].VALOR;
 
+          let tdev = 0;
+          let tded = 0;
+          for (let k = 0; k < this.conc_dev.split(',').length-1; k++) {
+            const colliq = this.conc_dev.split(',')[k];
+            tdev += Math.abs(dnom[colliq]);
+          }
+          for (let k = 0; k < this.conc_ded.split(',').length-1; k++) {
+            const colliq = this.conc_ded.split(',')[k];
+            tded += Math.abs(dnom[colliq]);
+          }
+          dnom.TOTAL_DEVENGADO = tdev;
+          dnom.TOTAL_DEDUCIDO = tded;
+          dnom.TOTAL = tdev - Math.abs(tded);
+  
+        }
         // Valida si hubo cambio de valor
-        if(colmodif === 'dias') {
+        /*if(colmodif === 'dias') {
           this.DPrestMasiva[ix].DIAS = value;
           if (this.DPrestMasiva[ix].DIAS != this.DPrestMasiva[ix].DIAS_ORG)
             this.DPrestMasiva[ix].DIAS_CAMBIO = true;
@@ -535,9 +855,15 @@ export class LiqgeneradaComponent implements OnInit {
           if (this.DPrestMasiva[ix].BASE != this.DPrestMasiva[ix].BASE_ORG)
             this.DPrestMasiva[ix].BASE_CAMBIO = true;
         }
-        this.DPrestMasiva[ix].TOTAL = valLiq[0].TOTAL;
+        this.DPrestMasiva[ix].TOTAL = valLiq[0].TOTAL;*/
+
+  
       }
-    });
+
+      this.type = 'success';
+      this.message = "Empleado actualizado!";
+      this.isVisible = true;
+  });
   }
 
   // Si hubo cambios, señalar
@@ -557,7 +883,7 @@ export class LiqgeneradaComponent implements OnInit {
     if(e.rowType === "data" && e.column.dataField === "BASE" ) {
       if(this.DPrestMasiva[e.data.ITEM-1].BASE_CAMBIO)
         e.cellElement.style.background = "lightsalmon" 
-      else
+      else  
         e.cellElement.style.background = "white";
     }
   }
@@ -573,9 +899,15 @@ export class LiqgeneradaComponent implements OnInit {
   }
 
   updateRow(e: any) {
-    for (let key in e.newData) {
+    /*for (let key in e.newData) {
       this.datFilaEdit = e.row.data;
-    }
+    }*/
+  }
+
+  // Actualiza dato modificado -- Liquidación Masiva
+  updateRowMas(e: any) {
+    // Actualiza BD
+    this.AjusteLiquidacion(e.data, e.data, e.data, this.id_Liquidacion);
   }
 
   onIniciarLiqPres(e: any) {
@@ -593,8 +925,14 @@ export class LiqgeneradaComponent implements OnInit {
     );
   }
   onInitNewRowNov(e: any) {
-    e.data.ID_EMPLEADO = this.DFEmpleados.ID_EMPLEADO;
-    e.data.NOMBRE_COMPLETO = this.DFEmpleados.NOMBRE_COMPLETO;
+    //e.data.ID_EMPLEADO = this.DFEmpleados.ID_EMPLEADO;
+    //e.data.NOMBRE_COMPLETO = this.DFEmpleados.NOMBRE_COMPLETO;
+    e.data.ID_CONCEPTO = "";
+    e.data.BASE = 0;
+    e.data.DIAS = 0;
+    e.data.TOTAL = 0;
+    e.data.OPCION = '';
+    e.data.NOMBRE = '';
   }
   onSelectionChanged(selectedRowKeys: any, cellInfo: any, dropDownBoxComponent: any) {
     cellInfo.setValue(selectedRowKeys[0]);
@@ -641,7 +979,6 @@ onValueChangedTodo(e: any) {
       if (disabledKeys.length > 0)  
          e.component.deselectRows(disabledKeys);  
   }  
-
 
   // Cambio de datos en la liquidacion
   editorPreparing2(e: any) {
@@ -697,12 +1034,90 @@ onValueChangedTodo(e: any) {
     }
   }
 
-  imprimirLiquida(e: any) {
-    /*const url = this.router.serializeUrl(
-      this.router.createUrlTree(['/visorrep', { id: 'REPORTE' }])
-    );
-  */
-    window.open('/visorrep?id=REPORTE', '_blank');
+  // Ajuste de días general
+  ajusteDias(e: any) {
+    // Actualiza la tabla con los días señalados
+    this.DPrestMasiva.forEach((ele: any) => {
+      ele.DIAS = this.valAjusteDias;
+    });
+
+    // Actualiza en base de datos
+
+  }
+
+  customizeColumns(columns: any) {
+    if (this.gridNomina===undefined) return;
+    var items = this.gridNomina.instance.getDataSource().items();  
+    columns.forEach((col: any)=> {  
+      if(typeof items[0][col.dataField] === "number"){  
+        col.dataType = "number";  
+        col.format = "#,##0";  
+      }  
+      if(col.dataField.match("ErrMensaje|V__CAMBIOS")) {  
+        col.visible = false;
+      }
+      if(col.dataField === "TOTAL"){  
+        col.fixed = true;
+        col.fixedPosition = "right";
+      }
+      if(col.dataField.match("TOTAL_DEVENGADO|TOTAL_DEDUCIDO|TOTAL|ID_EMPLEADO|APELLIDO_COMPLETO|BASICO|TRANSPORTE")){  
+        col.allowEditing = false;
+      }
+      if(!col.dataField.match("TOTAL_DEVENGADO|TOTAL_DEDUCIDO|TOTAL|ID_EMPLEADO|APELLIDO_COMPLETO|BASICO|TRANSPORTE")){  
+        col.setCellValue = (rowData: any, value: any, currentRowData: any) => {
+          this.setCellConceptoMas(rowData, value, currentRowData, col.dataField);
+        };
+
+        // Header a las columnas
+        const dcon = this.cfg_concep.find((s: any) => s.ID_CONCEPTO === col.dataField)!;
+        if (dcon != undefined) {
+          col.caption = '[' + col.dataField + '] ' + dcon.NOMBRE;
+          col.width = "150";
+        }
+      }
+    })  
+  }
+  onContentReadyMasiva(e: any) {
+    if (!e.component.__columndded) {
+      e.component.__columndded = true;
+      e.component.addColumn(this.columnOptions);
+    }
+  }
+  columnOptions: object = {
+    name: "Acciones",
+    width: 100,
+    dataField: '',
+    cellTemplate: 'cellAcciones',
+    visibleIndex: 2
+  };
+
+  onExporting(e: any) {
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet('Liquidaciones');
+    
+    exportDataGrid({
+      component: e.component,
+      worksheet: worksheet,
+      autoFilterEnabled: true
+    }).then(() => {
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        saveAs(new Blob([buffer], { type: 'application/octet-stream' }), this.archExcelNomina);
+      });
+    });
+
+    e.cancel = true;
+  }
+
+  imprimirLiquida(filtro: any) {
+    const prmLiq = {Datos:  { clid: this.globals.clid, 
+                              IdLiq: this.globals.dat_liq.id_liq, 
+                              IdRpt: this.globals.dat_liq.id_rep, 
+                              NumLiq: this.globals.dat_liq.num_liq, 
+                              Filtro: "$"+filtro+"$" 
+                            }};
+    var prm_safe = encodeURIComponent(JSON.stringify(prmLiq));
+    window.open('/visorrep?prm_rpt='+prm_safe, '_blank');
+
     //this.router.navigateByUrl('/visorrep?id=REPORTE');
     //this.router.navigate(['/visorrep']);
 
@@ -723,58 +1138,88 @@ onValueChangedTodo(e: any) {
   }
 
   ngOnInit(): void {
+    this.usuario = this.globals.nom_usr;
+    var transaccion = "";
 
     // Confecciona los elementos de acuerdo al tipo de liquidacion
     this.route.params.subscribe(parameter => {
       this.titLiquidacion = parameter['NomLiq'];
       this.id_Liquidacion = parameter['TipoLiq'];
       this.PrmGeneracion  = JSON.parse(parameter['PrmLiq']);
+      this.globals.tit_pag = this.titLiquidacion;
 
       // Filtro de generación
-      this.DFEmpleados.FECHA_INICIAL = this.PrmGeneracion.FECHA_DESDE;
-      this.DFEmpleados.FECHA_FINAL = this.PrmGeneracion.FECHA_HASTA;
-      this.DFEmpleados.FECHA_INI_BASE = this.PrmGeneracion.FECHA_INI_BASE;
-      this.DFEmpleados.FECHA_FIN_BASE = this.PrmGeneracion.FECHA_FIN_BASE;
-      this.DFEmpleados.ID_EMPLEADO = this.PrmGeneracion.ID_EMPLEADO;
-      this.DFEmpleados.NOMBRE_COMPLETO = this.PrmGeneracion.NOMBRE;
-      this.DFEmpleados.ID_EMPRESA = this.PrmGeneracion.EMPRESA;
-      this.DFEmpleados.GRUPO = this.PrmGeneracion.GRUPO;
-      this.DFEmpleados.CONTRATO = this.PrmGeneracion.CONTRATO;
-      this.DFEmpleados.DIAS = this.PrmGeneracion.DIAS;
-      this.valSeleccEmpleado = this.PrmGeneracion.ID_EMPLEADO;
-      this.valSeleccEmpresa = this.PrmGeneracion.EMPRESA;
-      this.valSeleccGrupo = this.PrmGeneracion.GRUPO;
+      if (this.PrmGeneracion.ID_EMPLEADO != 'consulta') {
+        this.DFEmpleados.FECHA_INICIAL = this.PrmGeneracion.FECHA_DESDE;
+        this.DFEmpleados.FECHA_FINAL = this.PrmGeneracion.FECHA_HASTA;
+        this.DFEmpleados.FECHA_INI_BASE = this.PrmGeneracion.FECHA_INI_BASE;
+        this.DFEmpleados.FECHA_FIN_BASE = this.PrmGeneracion.FECHA_FIN_BASE;
+        this.DFEmpleados.ID_EMPLEADO = this.PrmGeneracion.ID_EMPLEADO;
+        this.DFEmpleados.NOMBRE_COMPLETO = this.PrmGeneracion.NOMBRE;
+        this.DFEmpleados.ID_EMPRESA = this.PrmGeneracion.EMPRESA;
+        this.DFEmpleados.GRUPO = this.PrmGeneracion.GRUPO;
+        this.DFEmpleados.CONTRATO = this.PrmGeneracion.CONTRATO;
+        this.DFEmpleados.DIAS = this.PrmGeneracion.DIAS;
+        this.DFEmpleados.ID_CAUSA = this.PrmGeneracion.ID_CAUSA;
+        this.DFEmpleados.COMENTARIOS = this.PrmGeneracion.COMENTARIOS;
+        this.DFEmpleados.GEN_NOM = this.PrmGeneracion.GEN_NOM;
+        this.DFEmpleados.ELIM_LIQ = this.PrmGeneracion.ELIM_LIQ;
+        this.valSeleccEmpleado = this.PrmGeneracion.ID_EMPLEADO;
+        this.valSeleccEmpresa = this.PrmGeneracion.EMPRESA;
+        this.valSeleccGrupo = this.PrmGeneracion.GRUPO;
+        this.modoOperacion = 'generacion';
+        transaccion = parameter['TipoLiq'];
+      }
+      else
+      {
+        this.num_liq = this.PrmGeneracion.NumLiq;
+        this.titLiquidacion = parameter['NomLiq'] + ' [' + this.PrmGeneracion.NumLiq + ']';
+        this.consultaLiquidacion(this.PrmGeneracion.NumLiq);
+        this.modoOperacion = 'consulta';
+        transaccion = parameter['NomLiq'];
+      }
   
-      switch (parameter['TipoLiq']) {
+      switch (transaccion) {
         case 'Primas':
+        case 'Liquidación de Primas':
           this.elemActivos.Primas = true;
           this.archExcelLiq = "LiqPrima";
           this.archExcelLiqHis = "LiqHisBasePrima";
+          this.archExcelNomina = "LiqPrima.xlsx";
           break;
       
         case 'Cesantías':
+        case 'Liquidación de Cesantías':
           this.elemActivos.Cesantias = true;
           this.archExcelLiq = "LiqCesantias";
           this.archExcelLiqHis = "LiqHisBaseCes";
+          this.archExcelNomina = "LiqCesantias.xlsx";
           break;
       
         case 'Int Cesantías':
+        case 'Liquidación de Int Cesantías':
           this.elemActivos.IntCesantias = true;
           this.archExcelLiq = "LiqIntCesantias";
           this.archExcelLiqHis = "LiqHisBaseIntCes";
+          this.archExcelNomina = "LiqIntCesantias.xlsx";
           break;
       
         case 'Vacaciones':
+        case 'Liquidación de Vacaciones':
           this.elemActivos.Vacaciones = true;
           this.archExcelLiq = "LiqVacaciones";
           this.archExcelLiqHis = "LiqHisBaseIntVac";
+          this.archExcelNomina = "LiqVacaciones.xlsx";
           break;
         
         case 'Contrato':
+        case 'Liquidación de Contrato':
           this.elemActivos.Contrato = true;
           break;
           
         default:
+          this.archExcelLiq = "LiqNomina";
+          this.archExcelLiqHis = "LiqHisNomina";
           break;
       }
       
@@ -795,6 +1240,8 @@ onValueChangedTodo(e: any) {
   }
   ngAfterViewInit(): void {  
     this.ddLConceptos?.instance.option("dropDownOptions.width", 600);  
-    this.clickLiquida(undefined);
+    if (this.modoOperacion != 'consulta') {
+      this.clickLiquida(undefined);
+    }
   }  
 }

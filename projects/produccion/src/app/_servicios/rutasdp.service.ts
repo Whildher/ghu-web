@@ -28,13 +28,13 @@ export class RutasdpService {
 		});*/
 		const prmJ = {
 			"prmAccion": 'consulta',
-			"prmDatos": JSON.stringify(prmJson)
+			"data": prmJson
 		};
 		const body = JSON.stringify(prmJ);
-		let url = this.appSettingsService.settingsApp.urlapi + '/api/XPro/AccionRutas';
-		return this.http.post<any>(url, body, {headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } }).
-			pipe(map((vec: any) => { return { data: JSON.parse(vec) }; }),
-			catchError((err) => { return throwError(err); })
+		//let url = this.appSettingsService.settingsApp.urlapi + '/api/XPro/AccionRutas';
+		let url = 'http://192.168.10.91:4200/e/utils/consulta';
+		return this.http.post<any>(url, prmJ, {headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } }).
+			pipe(catchError((err) => { return throwError(err); })
 		);
 	}
 

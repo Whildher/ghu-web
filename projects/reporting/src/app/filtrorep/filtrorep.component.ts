@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, Input, OnInit, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -11,7 +11,9 @@ import { RFiltro } from '../_class/rfiltro.class';
   styleUrls: ['./filtrorep.component.css']
 })
 export class FiltrorepComponent implements OnInit {
-	//subscription: Subscription;
+  @Input() public idApl: string;
+
+  //subscription: Subscription;
   DFiltro: RFiltro[] = [];
 
   constructor(private _sreportes: SreportesService,

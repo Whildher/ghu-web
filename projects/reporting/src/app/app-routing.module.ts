@@ -8,8 +8,8 @@ import { VisorrepComponent } from './visorrep/visorrep.component';
 
 const routes: Routes = [
   {path: 'reportes' , component: ReportesComponent},
-  {path: 'repaplicacion' , component: RepaplicacionComponent},
-  {path: 'filtrorep' , component: FiltrorepComponent},
+  {path: 'repaplicacion' , component: RepaplicacionComponent, outlet: 'admreportes'},
+  {path: 'filtrorep' , component: FiltrorepComponent, outlet: 'admreportes'},
   {path: 'designer' , component: DesignerComponent},
   {path: 'visorrep' , component: VisorrepComponent},
   {path: '**' , component: ReportesComponent},

@@ -98,6 +98,9 @@
     padding-top: 5px;
     height: 50px;
 }
+::ng-deep  #GNovedades > .dx-datagrid .dx-link {
+    text-decoration: none;
+}
 
 ::ng-deep div.dx-datagrid-header-panel > div > div > div.dx-toolbar-before > div:nth-child(1) {
     float: right;
@@ -116,9 +119,37 @@
     border-color: cadetblue;
 }
 
+::ng-deep #GLiqPrestMasiva > div > div.dx-datagrid-header-panel > div > div > div.dx-toolbar-before > div:nth-child(4) {
+    float: left;
+}
+::ng-deep #GLiqPrestMasiva > div > div.dx-datagrid-header-panel > div > div > div.dx-toolbar-before > div:nth-child(3) {
+    float: right;
+    padding-left: 20px;
+}
+::ng-deep #GLiqPrestMasiva > div > div.dx-datagrid-header-panel > div > div > div.dx-toolbar-before > div:nth-child(3) > div > dx-number-box {
+    background: white;
+    border-color: cadetblue;
+    width: 200px;
+}
+::ng-deep #GLiqPrestMasiva > div > div.dx-datagrid-header-panel > div > div > div.dx-toolbar-before > div:nth-child(1) {
+    padding-left: 20px;
+    width: 340px;
+}
+::ng-deep #GLiqPrestMasiva > div > div.dx-datagrid-header-panel > div > div > div.dx-toolbar-before > div:nth-child(2) {
+    padding-left: 20px;
+    width: 340px;
+}
+
+::ng-deep .dx-searchbox  {  
+    width: 300px !important;  
+}  
+
 ::ng-deep #form > div > div {
     margin-left: 0;
 }
 ::ng-deep .p-button-lg {
     margin-left: 0;
+}
+:host ::ng-deep .dx-datagrid-headers table td div.dx-datagrid-text-content {
+    white-space: normal;
 }

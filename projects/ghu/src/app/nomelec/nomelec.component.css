@@ -1,0 +1,30 @@
+::ng-deep .genelec {
+    margin-top: 100px;
+}
+::ng-deep .p-button.p-button-sm {
+    padding: 0.2em 0.8em;
+}
+::ng-deep .p-toolbar {
+    width: 100%;
+    /*overflow: hidden;*/
+    background:rgb(138, 246, 201) ;
+    position: fixed;
+    top: 0;
+    z-index: 20;
+  }
+  ::ng-deep .p-toolbar h3 {
+    font-family: 'Segoe UI Light', 'Helvetica Neue Light', 'Segoe UI', 'Helvetica Neue', 'Trebuchet MS', Verdana;
+    font-weight: 200 bold;
+    font-size: 30px;
+    color: rgb(76, 64, 241);
+    text-align: left;
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+::ng-deep #small-indicator, #medium-indicator, #large-indicator {
+    vertical-align: middle;
+    margin-right: 10px;
+}
+:host ::ng-deep .dx-datagrid-headers table td div.dx-datagrid-text-content {
+    white-space: normal;
+}

@@ -1,0 +1,13 @@
+<dx-data-grid
+    #GPeriodo
+    id="GPeriodo"
+    [dataSource]="DLiqPeriodo"
+    keyExpr="ID_EMPLEADO"
+    [columnAutoWidth]="true"
+    columnResizingMode="nextColumn"
+    [allowColumnResizing]="true"
+    [showBorders]="true"
+    [customizeColumns]="customizeColumns"
+    (onCellPrepared)="onCellPreparedLiq($event)"
+  >
+</dx-data-grid>

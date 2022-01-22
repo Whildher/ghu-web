@@ -1,0 +1,47 @@
+::ng-deep .genelec {
+    margin-top: 100px;
+}
+::ng-deep .p-button.p-button-sm {
+    padding: 0.2em 0.8em;
+}
+::ng-deep .p-toolbar {
+    width: 100%;
+    /*overflow: hidden;*/
+    background:rgb(138, 246, 201) ;
+    position: fixed;
+    top: 0;
+    z-index: 20;
+}
+::ng-deep .p-toolbar h3 {
+    font-family: 'Segoe UI Light', 'Helvetica Neue Light', 'Segoe UI', 'Helvetica Neue', 'Trebuchet MS', Verdana;
+    font-weight: 200 bold;
+    font-size: 30px;
+    color: rgb(76, 64, 241);
+    text-align: left;
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+::ng-deep .dx-tooltip-wrapper .dx-overlay-content .dx-popup-content {  
+    background-color: black;
+} 
+::ng-deep .dx-tooltip-wrapper.dx-popover-wrapper .dx-popover-arrow:after {  
+    background-color: black;
+} 
+::ng-deep .dx-fieldset  {
+    margin-top: 10px;
+}
+::ng-deep .dx-field  {
+    width: 100%;
+}
+::ng-deep .dx-fieldset-header {
+    margin-bottom: 0px;
+}
+::ng-deep .dx-placeholder {
+    color: white;
+}
+::ng-deep div.dx-datagrid-header-panel > div > div > div.dx-toolbar-before > div:nth-child(1) > div > dx-drop-down-box {
+    background: green;
+}
+:host ::ng-deep .dx-datagrid-headers table td div.dx-datagrid-text-content {
+    white-space: normal;
+}

@@ -1,0 +1,213 @@
+<div *ngIf="this.id_Liquidacion == 'Nómina'" style="margin-top: 80px;">
+    <div class="titulo2">
+        <h3>Planilla de Liquidación</h3>
+    </div>
+
+    <dx-data-grid 
+        #GLiqNomina
+        [dataSource]="DNomina"
+        keyExpr="ID_EMPLEADO"
+        [columnAutoWidth]="true"
+        columnResizingMode="nextColumn"
+        [allowColumnResizing]="true"
+        [showBorders]="true"
+        [customizeColumns]="customizeColumns"
+        (onEditingStart)="onEditingStart($event)"
+        (onEditorPreparing)="onEditorPreparing($event)"
+        (onCellPrepared)="onCellPreparedLiq($event)"
+        (onCellHoverChanged)="onCellHoverChanged($event)"
+        (onRowUpdated)="updateRowNom($event)"
+        (onExporting)="onExporting($event)"
+        (onToolbarPreparing)="onToolbarPreparing($event)">
+
+        <dxo-editing 
+            mode="cell"
+            [allowUpdating]="true"
+            >
+        </dxo-editing>
+
+        <dxo-filter-row 
+            [visible]="true"></dxo-filter-row>
+        <dxo-header-filter 
+            [visible]="true"></dxo-header-filter>
+
+        <!--<dxo-selection mode="single"></dxo-selection>-->
+        <dxo-search-panel 
+            [visible]="true" 
+            [width]="240" 
+            placeholder="Buscar...">
+        </dxo-search-panel>
+
+        <dxo-paging 
+            [pageSize]="20">
+        </dxo-paging>
+        <dxo-pager 
+            [visible]="true" 
+            [allowedPageSizes]="allowedPageSizes" 
+            displayMode="full"
+            [showPageSizeSelector]="true" 
+            [showInfo]="true" 
+            [showNavigationButtons]="true">
+        </dxo-pager>
+
+        <dxo-summary>
+            <dxi-total-item
+                column="TOTAL_DEVENGADO"
+                summaryType="sum"
+                displayFormat="{0}"
+                valueFormat="#,###">
+            </dxi-total-item>
+            <dxi-total-item
+                column="TOTAL_DEDUCIDO"
+                summaryType="sum"
+                displayFormat="{0}"
+                valueFormat="#,###">
+            </dxi-total-item>
+            <dxi-total-item
+                column="TOTAL"
+                summaryType="sum"
+                displayFormat="{0}"
+                valueFormat="#,###">
+            </dxi-total-item>
+        </dxo-summary>
+        <dxo-export [enabled]="true" [allowExportSelectedData]="true"></dxo-export>
+
+        <div *dxTemplate="let e of 'conceptosTemplate'">
+                <dx-drop-down-box 
+                    value="Conceptos"
+                    [dropDownOptions]="{ width: 530 }"
+                    valueExpr="ID_CONCEPTO"
+                    width="175"
+                    [deferRendering]="false"
+                    displayExpr="ID_CONCEPTO"
+                    [dataSource]="DConceptos"
+                    [(opened)]="isGridBoxOpened"
+                    placeholder="Agregar concepto..."
+                    contentTemplate="gridConceptosTempl"
+                    (onOptionChanged)="onGridBoxOptionChanged($event)"
+                    >
+                  <div *dxTemplate="let e of 'gridConceptosTempl'">
+                    <dx-data-grid
+                        [dataSource]="DConceptos"
+                        [focusedRowEnabled]="true"
+                        [columns]="['ID_CONCEPTO', 'NOMBRE' , 'TIPO_VALOR']"
+                        [selection]="{ mode: 'single' }"
+                        keyExpr="ID_CONCEPTO"
+                        [hoverStateEnabled]="true"
+                        [paging]="{ enabled: true, pageSize: 10 }"
+                        [scrolling]="{ mode: 'infinite' }"
+                        height="100%"
+                        width="100%"
+                        (onSelectionChanged)="onSeleccConcepto($event)">
+                        <dxo-filter-row [visible]="true"></dxo-filter-row>
+                        <dxi-column dataField="ID_CONCEPTO" [width]="100"></dxi-column>
+                        <dxi-column dataField="NOMBRE"></dxi-column>
+                        <dxi-column dataField="TIPO_VALOR"></dxi-column>
+                        <dxo-paging [enabled]="true" [pageSize]="10"></dxo-paging>
+                        <dxo-selection mode="single" ></dxo-selection>
+                    </dx-data-grid>
+                  </div>
+                </dx-drop-down-box>
+          </div>
+
+        <div *dxTemplate="let data of 'filtroGen'">
+            <div class="dx-fieldset-header">Filtro:{{filtroLiq}}</div>
+        </div>
+
+    </dx-data-grid>
+
+    <dx-tooltip
+        id="ToolTipConcepto"
+        #ToolTipConcepto
+        [target]="TooltipTarget"
+        position="right"
+        [(visible)]="tipVisible"
+        [closeOnOutsideClick]="true"
+    >
+        <div *dxTemplate="let data = data; of: 'content'">
+            <div style="background-color: black; color: white;">
+                <!--<i>{{diasConc}}</i><br />
+                <b>{{valorConc}}</b><br />
+                <p-button label="Editar" icon="pi pi-check" styleClass="p-button-sm"></p-button>-->
+                <div [innerHTML]="infoNovedad"></div>
+            </div>
+        </div>
+    </dx-tooltip>
+</div>
+
+<dx-load-panel
+    #loadPanel
+    shadingColor="rgba(0,0,0,0.4)"
+    [position]="{ of: '#divLiq' }"
+    [(visible)]="loadingVisible"
+    [showIndicator]="true"
+    [showPane]="true"
+    [shading]="true"
+    message="Liquidando, por favor esperar..."
+    [closeOnOutsideClick]="false"
+    (onShown)="onShown()"
+    (onHidden)="onHidden()">
+</dx-load-panel>
+
+<dx-toast [(visible)]="isVisible" [type]="type" [message]="message"></dx-toast>
+
+<p-dialog header="{{errTit}}" [(visible)]="displayModal" [modal]="true" [style]="{width: '35vw'}" [baseZIndex]="10000"
+    [draggable]="false" [resizable]="false">
+        <div [innerHTML]="errMsg"></div>
+        <ng-template pTemplate="footer">
+        <p-button icon="pi pi-check" (click)="displayModal=false" label="Ok" styleClass="p-button-text"></p-button>
+        </ng-template>
+</p-dialog>
+
+<dx-popup
+    [width]="500"
+    [height]="400"
+    [showTitle]="true"
+    [title]="datConcepto"
+    [dragEnabled]="false"
+    [closeOnOutsideClick]="true"
+    [showCloseButton]="false"
+    [(visible)]="popupVisible"
+    [position]="{ my: 'center', at: 'center', of: '#GLiqNomina' }"
+  >
+    <dxi-toolbar-item
+      widget="dxButton"
+      toolbar="bottom"
+      location="before"
+      [options]="aceptaCambiosConcepto"
+    >
+    </dxi-toolbar-item>
+    <dxi-toolbar-item
+      widget="dxButton"
+      toolbar="bottom"
+      location="after"
+      [options]="cancelaCambios"
+    >
+    </dxi-toolbar-item>
+    <!--<dxo-position at="bottom" my="center" [of]="positionOf"> </dxo-position>-->
+    <div *dxTemplate="let data of 'content'">
+            <div class="dx-fieldset">
+                <div class="dx-field">
+                    <div>{{titEmpleadoNov}}</div>
+                </div>
+                <div class="dx-field">
+                    <div class="dx-field-label">{{titCantidad}}</div>
+                    <dx-text-box class="dx-field-value" [(value)]="canConcepto"> </dx-text-box>
+                </div>
+                <div class="dx-field">
+                    <div class="dx-field-label">Fecha desde</div>
+                    <dx-date-box class="dx-field-value" [(value)]="fechaDesdeNov" type="date"> </dx-date-box>
+                </div>
+                <div class="dx-field">
+                    <div class="dx-field-label">Fecha hasta</div>
+                    <dx-date-box class="dx-field-value" [(value)]="fechaHastaNov" type="date"> </dx-date-box>
+                </div>
+                <div class="dx-field">
+                    <div class="dx-field-label">Valor Concepto</div>
+                    <div class="dx-field-value">
+                        <dx-number-box format="#,##0" [(value)]="valConcepto"></dx-number-box>
+                    </div>
+                </div>
+            </div>
+    </div>
+  </dx-popup>

@@ -1,0 +1,101 @@
+<p-toolbar id="titPrincipal">
+    <div class="p-toolbar-group-left">
+        <p-button icon="pi pi-home" class="p-mr-2" (click)="clickHome($event)"></p-button>
+        <h3>{{titLiquidacion}}</h3>
+    </div>
+    <div class="p-toolbar-group-right">
+        <p-button label="{{usuario}}" icon="pi pi-user" styleClass="p-button-warning" badge="8" badgeClass="p-badge-danger"></p-button>
+    </div>
+</p-toolbar>
+
+
+<div class="genelec">
+
+    <dx-data-grid 
+        #GLiquidaciones
+        id="GLiquidaciones" 
+        [dataSource]="DLiquidaciones"
+        keyExpr="DOCUMENTO"
+        [showBorders]="true"
+        [allowColumnResizing]="true"
+        [rowAlternationEnabled]="true"
+        (onToolbarPreparing)="onToolbarPreparing($event)">
+
+        <dxo-filter-row 
+            [visible]="true"></dxo-filter-row>
+        <dxo-header-filter 
+            [visible]="true"></dxo-header-filter>
+        <dxo-search-panel 
+            [visible]="true" 
+            [width]="240" 
+            placeholder="Buscar..."></dxo-search-panel>
+
+        <dxo-paging 
+            [pageSize]="10">
+        </dxo-paging>
+        <dxo-pager 
+            [visible]="true" 
+            [allowedPageSizes]="allowedPageSizes" 
+            displayMode="full"
+            [showPageSizeSelector]="true" 
+            [showInfo]="true" 
+            [showNavigationButtons]="true">
+        </dxo-pager>
+
+
+        <dxi-column dataField="DOCUMENTO" [width]="80" caption="Id Liquidación" cellTemplate="cellTplIrA"></dxi-column>
+        <dxi-column dataField="GENERAR" [width]="120" caption="Generar" cellTemplate="cellGenerar"></dxi-column>
+        <dxi-column dataField="FIRMADA" [width]="80" caption="Firmada" cellTemplate="cellFirma"></dxi-column>
+        <dxi-column dataField="EMPLEADO" [width]="330" caption="Empleado" ></dxi-column>
+        <dxi-column dataField="FECHA" [width]="110" caption="Fecha Generación" format="MMM dd yyyy"></dxi-column>
+        <dxi-column dataField="EMPLEADO" [width]="330" caption="Empleado" ></dxi-column>
+        <dxi-column dataField="PERIODO" caption="Periodo" ></dxi-column>
+        <dxi-column dataField="TIPO"  caption="Tipo" ></dxi-column>
+        <dxi-column dataField="NUM_LIQ"  caption="Doc" ></dxi-column>
+        <dxi-column dataField="ID_APLICACION" caption="Apl" [visible]="false"></dxi-column>
+
+        <dxo-export [enabled]="true" fileName="{{archExcelLiq}}"></dxo-export>
+
+        <div *dxTemplate="let liqData of 'cellTplIrA'">
+            <a href="javascript:void(null);" (click)="IrALiquidacion(liqData.data.ID_APLICACION,  liqData.data.TIPO)">{{liqData.value}}</a>
+        </div>
+
+        <div *dxTemplate="let liqData of 'cellGenerar'">
+            <p-button label="Generar" icon="pi pi-check" styleClass="p-button-sm" 
+                      (click)="generaElectronica(liqData.data.TIPO, liqData.data.DOCUMENTO, 
+                                                 liqData.data.ANO, liqData.data.MES, 
+                                                 liqData.data.ID_APLICACION, liqData.data.NUM_LIQ)">
+            </p-button>
+        </div>
+
+        <div *dxTemplate="let data of 'titLiquidaciones'">
+            <div class="dx-fieldset-header">Últimas Liquidaciones</div>
+        </div>
+        
+        <div *dxTemplate="let liqData of 'cellFirma'" >
+            <dx-load-indicator *ngIf="estadoGen" id="indicator"+liqData.FILA height="20" width="20"></dx-load-indicator>
+            <a href="javascript:;" 
+                >
+                <img alt='ImageHere' style='width:30px; height:27px; padding: 0px 3px 0px 0px;' [src]='imgError' />
+            </a>
+            <a href="javascript:;" 
+                >
+                <img alt='ImageHere' style='width:30px; height:27px; padding: 0px 3px 0px 0px;' [src]='imgXML' />
+            </a>
+            <a href="javascript:;" 
+                >
+                <img alt='ImageHere' style='width:30px; height:27px; padding: 0px 3px 0px 0px;' [src]='imgOK' />
+            </a>
+        </div>
+
+    </dx-data-grid>
+
+</div>
+
+<p-dialog header="{{errTit}}" [(visible)]="displayModal" [modal]="true" [style]="{width: '35vw'}" [baseZIndex]="10000"
+    [draggable]="false" [resizable]="false">
+        <div [innerHTML]="errMsg"></div>
+        <ng-template pTemplate="footer">
+        <p-button icon="pi pi-check" (click)="displayModal=false" label="Ok" styleClass="p-button-text"></p-button>
+        </ng-template>
+</p-dialog>

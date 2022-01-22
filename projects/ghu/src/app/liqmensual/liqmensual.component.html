@@ -1,0 +1,112 @@
+
+<div style="margin-top: 80px;">
+    <dx-drop-down-box 
+        value="Seleccione Mes"
+        [dropDownOptions]="{ width: 630 }"
+        valueExpr="ANO_MES"
+        width="175"
+        [deferRendering]="false"
+        displayExpr="ANO_MES"
+        [dataSource]="DListaMeses"
+        [(opened)]="isGridBoxOpened"
+        placeholder="Selecciones mes..."
+        contentTemplate="gridConceptosTempl"
+        (onOptionChanged)="onGridBoxOptionChanged($event)"
+        >
+        <div *dxTemplate="let e of 'gridConceptosTempl'">
+            <dx-data-grid
+                [dataSource]="DListaMeses"
+                [focusedRowEnabled]="true"
+                [selection]="{ mode: 'single' }"
+                keyExpr="ANO_MES"
+                [hoverStateEnabled]="true"
+                [paging]="{ enabled: true, pageSize: 10 }"
+                [scrolling]="{ mode: 'infinite' }"
+                height="100%"
+                width="100%"
+                (onSelectionChanged)="onSeleccConcepto($event)">
+                <dxo-filter-row [visible]="true"></dxo-filter-row>
+                <dxi-column dataField="ANO_MES" [width]="100"></dxi-column>
+                <dxi-column dataField="CANTIDAD"></dxi-column>
+                <dxi-column dataField="DOCUMENTO"></dxi-column>
+                <dxo-paging [enabled]="true" [pageSize]="10"></dxo-paging>
+                <dxo-selection mode="single" ></dxo-selection>
+            </dx-data-grid>
+        </div>
+    </dx-drop-down-box>
+</div>
+
+<br >
+
+<dx-data-grid
+    #GMensual
+    id="GMensual"
+    [dataSource]="DMensual"
+    keyExpr="ID_EMPLEADO"
+    [columnAutoWidth]="true"
+    columnResizingMode="nextColumn"
+    [allowColumnResizing]="true"
+    [showBorders]="true"
+    [customizeColumns]="customizeColumns"
+    (onExporting)="onExporting($event)"
+    (onCellPrepared)="onCellPreparedLiq($event)"
+    (onToolbarPreparing)="onToolbarPreparing($event)"
+  >
+    <dxo-search-panel 
+        [visible]="true" 
+        [width]="240" 
+        placeholder="Buscar...">
+    </dxo-search-panel>
+    <dxo-filter-row 
+        [visible]="true"></dxo-filter-row>
+    <dxo-header-filter 
+        [visible]="true"></dxo-header-filter>
+
+  <dxo-load-panel
+        [enabled]="true"
+        [showPane]="true"
+        [shading]="true"
+        [shadingColor]="'rgba(0,0,0,0.1)'"
+        text="Cargando datos.."
+        [showIndicator]="true" >
+    </dxo-load-panel>
+    <dxo-master-detail [enabled]="true" template="detail"></dxo-master-detail>
+    <div *dxTemplate="let liqdetalle of 'detail'">
+        <app-liqdetalle [idEmpleado]="liqdetalle.key" [data]="liqdetalle.data"></app-liqdetalle>
+    </div>
+
+    <dxo-summary>
+        <dxi-total-item
+            column="TOTAL_DEV"
+            summaryType="sum"
+            displayFormat="{0}"
+            valueFormat="#,###">
+        </dxi-total-item>
+        <dxi-total-item
+            column="TOTAL_DED"
+            summaryType="sum"
+            displayFormat="{0}"
+            valueFormat="#,###">
+        </dxi-total-item>
+        <dxi-total-item
+            column="TOTAL"
+            summaryType="sum"
+            displayFormat="{0}"
+            valueFormat="#,###">
+        </dxi-total-item>
+    </dxo-summary>
+    <dxo-export [enabled]="true" [allowExportSelectedData]="true"></dxo-export>
+
+    <div *dxTemplate="let data of 'titLiquidaciones'">
+        <div class="dx-fieldset-header">{{titLiqMensual}}</div>
+    </div>
+
+</dx-data-grid>
+
+<p-dialog header="{{errTit}}" [(visible)]="displayModal" [modal]="true" [style]="{width: '35vw'}" [baseZIndex]="10000"
+    [draggable]="false" [resizable]="false">
+        <div [innerHTML]="errMsg"></div>
+        <ng-template pTemplate="footer">
+        <p-button icon="pi pi-check" (click)="displayModal=false" label="Ok" styleClass="p-button-text"></p-button>
+        </ng-template>
+</p-dialog>

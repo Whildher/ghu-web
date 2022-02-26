@@ -1,0 +1,9 @@
+::ng-deep .genelec {
+    margin-top: 100px;
+}
+::ng-deep .dx-fieldset-header {
+    margin: 0;
+}
+::ng-deep p-button-info p-button-text p-button-sm p-button p-component {
+    padding: 0 5px;
+}

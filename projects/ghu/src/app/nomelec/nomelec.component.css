@@ -28,3 +28,9 @@
 :host ::ng-deep .dx-datagrid-headers table td div.dx-datagrid-text-content {
     white-space: normal;
 }
+::ng-deep #clsLink {
+    text-align: center;
+}
+::ng-deep .p-menu {
+    width: 300px;
+}

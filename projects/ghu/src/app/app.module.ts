@@ -17,6 +17,8 @@ import { DataViewModule } from 'primeng/dataview';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { DialogModule } from 'primeng/dialog';
+import { BadgeModule } from 'primeng/badge';
+import { MenuModule } from 'primeng/menu';
 
 import { PrincipalComponent } from './principal/principal.component';
 import { DatePipe } from '@angular/common';
@@ -36,6 +38,7 @@ import { FiltrorepComponent } from 'projects/reporting/src/app/filtrorep/filtror
 import { NominaComponent } from './nomina/nomina.component';
 import { LiqmensualComponent } from './liqmensual/liqmensual.component';
 import { LiqdetalleComponent } from './liqdetalle/liqdetalle.component';
+import { ListadocelecComponent } from './listadocelec/listadocelec.component';
 
 
 @NgModule({
@@ -53,7 +56,8 @@ import { LiqdetalleComponent } from './liqdetalle/liqdetalle.component';
     FiltrorepComponent,
     NominaComponent,
     LiqmensualComponent,
-    LiqdetalleComponent
+    LiqdetalleComponent,
+    ListadocelecComponent
   ],
   imports: [
     BrowserModule,
@@ -80,6 +84,8 @@ import { LiqdetalleComponent } from './liqdetalle/liqdetalle.component';
     BrowserAnimationsModule,
     DataViewModule,
     DialogModule,
+    BadgeModule,
+    MenuModule,
     DxDrawerModule,
     DxListModule,
     DxRadioGroupModule,

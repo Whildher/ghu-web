@@ -561,6 +561,7 @@ export class LiqgeneradaComponent implements OnInit {
         this.DLiquidaciones = datRes[0].HISTORICO;
         this.DLiquidacionFinal = datRes[0].PRESTACIONES;
         const valLiq = datRes[0].PRESTACIONES;
+        this.valSeleccEmpleado = datRes[0].ID_EMPLEADO;
         this.TotalLiquidacion = valLiq[0].TOTAL.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
         // Datos globales de la liquidación
@@ -794,7 +795,7 @@ export class LiqgeneradaComponent implements OnInit {
       DATOS_CAMBIO: currentRowData, 
       DATOS_TOTAL: !this.filtroMasivo ? this.DLiquidacionFinal : currentRowData, //this.DPrestMasiva,
       ID_LIQ: this.id_Liquidacion,
-      NUM_LIQ: !this.filtroMasivo ? this.globals.dat_liq.num_liq : this.num_liq
+      NUM_LIQ: !this.filtroMasivo ? this.num_liq : this.num_liq
     };
     console.log("Antes de ajuste liq....",prmLiq);
     this._sdatos.getDatos('AJUSTE PRESTACIONES',prmLiq).subscribe((data: any)=> {

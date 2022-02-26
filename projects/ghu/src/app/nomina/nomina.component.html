@@ -6,7 +6,7 @@
     <dx-data-grid 
         #GLiqNomina
         [dataSource]="DNomina"
-        keyExpr="ID_EMPLEADO"
+        [keyExpr]="['ID_EMPLEADO','NC_CONTRATO']"
         [columnAutoWidth]="true"
         columnResizingMode="nextColumn"
         [allowColumnResizing]="true"

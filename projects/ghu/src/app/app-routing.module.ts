@@ -8,6 +8,7 @@ import { GlobalsService } from './globals.service';
 import { LiquidacionesComponent } from './liqcontrato/liquidaciones.component';
 import { LiqgeneradaComponent } from './liqgenerada/liqgenerada.component';
 import { LiqmensualComponent } from './liqmensual/liqmensual.component';
+import { ListadocelecComponent } from './listadocelec/listadocelec.component';
 import { NomelecComponent } from './nomelec/nomelec.component';
 import { NominaComponent } from './nomina/nomina.component';
 import { PrincipalComponent } from './principal/principal.component';
@@ -21,6 +22,7 @@ const routes: Routes = [
   {path: 'liqmensual' , component: LiqmensualComponent},
   {path: 'nomina' , component: NominaComponent},
   {path: 'nomelec' , component: NomelecComponent},
+  {path: 'listadocelec' , component: ListadocelecComponent},
   {path: 'visorrep' , component: VisorrepComponent},
   {path: 'reportes' , component: ReportesComponent},
   {path: 'filtrorep' , component: FiltrorepComponent},

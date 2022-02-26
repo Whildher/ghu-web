@@ -235,6 +235,10 @@ export class NominaComponent implements OnInit {
           col.fixed = true;
           col.fixedPosition = "right";
         }
+        if(col.dataField === "APELLIDO_COMPLETO"){  
+          col.fixed = true;
+          col.fixedPosition = "left";
+        }
         if(col.dataField.match("TOTAL_DEVENGADO|TOTAL_DEDUCIDO|TOTAL|ID_EMPLEADO|APELLIDO_COMPLETO")){  
           col.allowEditing = false;
         }

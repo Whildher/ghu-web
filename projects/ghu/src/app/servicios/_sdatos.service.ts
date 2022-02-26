@@ -23,6 +23,8 @@ export class SdatosService {
     const body = JSON.stringify(prmJ);
 
     let url = this.appSettingsService.settingsApp.urlapi + '/api/XPro/AccionSQL';
+    console.log(url);
+    console.log(prmJ);
     /*return this.http.post(url, body, { 'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } })
               .toPromise()
               .then((res) => { 

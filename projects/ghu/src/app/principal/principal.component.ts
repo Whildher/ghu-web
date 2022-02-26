@@ -157,6 +157,10 @@ export class PrincipalComponent implements OnInit {
         this.router.navigate(['/liqmensual',{tipopro: 'Liquidación Mensual'}], {skipLocationChange: true});
         break;
     
+      case 'Total devengados por empleado mes':
+        this.imprimirLiquida("devmes","RptConceptosDevMeses","NA","");
+        break;
+    
       default:
         break;
     }
@@ -252,6 +256,7 @@ export class PrincipalComponent implements OnInit {
     this.appSettingsService.getSettings().subscribe((datos) => {
       const prm = { FILTRO: '' };
       this._sdatos.getDatos('LIQUIDACIONES',prm).subscribe((data: any)=> {
+        console.log(data);
         this.DLiquidaciones = JSON.parse(data);
       },
       (err: any)=> {

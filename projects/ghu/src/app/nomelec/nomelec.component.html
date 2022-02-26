@@ -45,10 +45,12 @@
 
         <dxi-column dataField="DOCUMENTO" [width]="80" caption="Id Liquidación" cellTemplate="cellTplIrA"></dxi-column>
         <dxi-column dataField="GENERAR" [width]="120" caption="Generar" cellTemplate="cellGenerar"></dxi-column>
-        <dxi-column dataField="FIRMADA" [width]="80" caption="Firmada" cellTemplate="cellFirma"></dxi-column>
-        <dxi-column dataField="EMPLEADO" [width]="330" caption="Empleado" ></dxi-column>
+        <dxi-column dataField="TOTAL" [width]="120" caption="Total Empleados" cellTemplate="cellTotal"></dxi-column>
+        <dxi-column dataField="ERR_CARGUE" [width]="80" caption="Errores cargue" cellTemplate="cellErrCargue"></dxi-column>
+        <dxi-column dataField="ERR_FIRMA" [width]="80" caption="Errores firmados" cellTemplate="cellErrFirma"></dxi-column>
+        <dxi-column dataField="FIRMADOS" [width]="80" caption="Firmados" cellTemplate="cellFirma"></dxi-column>
+        <dxi-column dataField="REFRESCAR" [width]="80" caption="Refrescar" cellTemplate="cellRefre"></dxi-column>
         <dxi-column dataField="FECHA" [width]="110" caption="Fecha Generación" format="MMM dd yyyy"></dxi-column>
-        <dxi-column dataField="EMPLEADO" [width]="330" caption="Empleado" ></dxi-column>
         <dxi-column dataField="PERIODO" caption="Periodo" ></dxi-column>
         <dxi-column dataField="TIPO"  caption="Tipo" ></dxi-column>
         <dxi-column dataField="NUM_LIQ"  caption="Doc" ></dxi-column>
@@ -64,27 +66,48 @@
             <p-button label="Generar" icon="pi pi-check" styleClass="p-button-sm" 
                       (click)="generaElectronica(liqData.data.TIPO, liqData.data.DOCUMENTO, 
                                                  liqData.data.ANO, liqData.data.MES, 
-                                                 liqData.data.ID_APLICACION, liqData.data.NUM_LIQ)">
+                                                 liqData.data.ID_APLICACION, liqData.data.NUM_LIQ, liqData)">
             </p-button>
         </div>
 
         <div *dxTemplate="let data of 'titLiquidaciones'">
-            <div class="dx-fieldset-header">Últimas Liquidaciones</div>
+            <div class="dx-fieldset-header">Liquidaciones - Mes</div>
         </div>
         
-        <div *dxTemplate="let liqData of 'cellFirma'" >
-            <dx-load-indicator *ngIf="estadoGen" id="indicator"+liqData.FILA height="20" width="20"></dx-load-indicator>
-            <a href="javascript:;" 
-                >
-                <img alt='ImageHere' style='width:30px; height:27px; padding: 0px 3px 0px 0px;' [src]='imgError' />
+        <div *dxTemplate="let liqData of 'cellTotal'" id="clsLink">
+            <dx-load-indicator [visible]="liqData.data.GENERAR" height="20" width="20"></dx-load-indicator>
+            <!--<button pButton pRipple type="button" [label]="liqData.data.EMPLEADO" (click)="IrAListaDoc($event,liqData.data.LISTA_EMPLEADOS,liqData.data.ANO,liqData.data.MES)" 
+                 class="p-button-info p-button-text p-button-sm" icon="pi pi-angle-down" >
+            </button> -->
+            <div>
+                <button type="button" pButton icon="pi pi-angle-down" [label]="liqData.data.EMPLEADO" 
+                        (click)="listaDropDnLotes($event,liqData.data.ANO,liqData.data.MES); menulotes.toggle($event)" 
+                        class="p-button-info p-button-text p-button-sm">
+                </button>
+            </div>
+        </div>
+        <div *dxTemplate="let liqData of 'cellErrCargue'" id="clsLink">
+            <dx-load-indicator [visible]="liqData.data.GENERAR" height="20" width="20"></dx-load-indicator>
+            <a href="javascript:;" (click)="IrAEstado('err_cargue',liqData.data.ANO, liqData.data.MES)" *ngIf="liqData.data.ERR_CARGUE != 0">
+                <p-badge [value]="liqData.data.ERR_CARGUE" severity="danger" styleClass="mr-2"></p-badge>
             </a>
-            <a href="javascript:;" 
-                >
-                <img alt='ImageHere' style='width:30px; height:27px; padding: 0px 3px 0px 0px;' [src]='imgXML' />
+        </div>
+        <div *dxTemplate="let liqData of 'cellErrFirma'" id="clsLink">
+            <dx-load-indicator [visible]="liqData.data.GENERAR" height="20" width="20"></dx-load-indicator>
+            <a href="javascript:;" (click)="IrAEstado('err_cargue',liqData.data.ANO, liqData.data.MES)" *ngIf="liqData.data.ERR_FIRMA != 0">
+                <p-badge [value]="liqData.data.ERR_FIRMA" severity="danger" styleClass="mr-2"></p-badge>
             </a>
-            <a href="javascript:;" 
-                >
-                <img alt='ImageHere' style='width:30px; height:27px; padding: 0px 3px 0px 0px;' [src]='imgOK' />
+        </div>
+        <div *dxTemplate="let liqData of 'cellFirma'" id="clsLink">
+            <dx-load-indicator [visible]="liqData.data.GENERAR" height="20" width="20"></dx-load-indicator>
+            <a href="javascript:;" (click)="IrAEstado('firmados',liqData.data.ANO, liqData.data.MES)"  *ngIf="liqData.data.FIRMADOS != 0">
+                <p-badge [value]="liqData.data.FIRMADOS" severity="success" styleClass="mr-2"></p-badge>
+            </a>
+        </div>
+        <div *dxTemplate="let liqData of 'cellRefre'" id="clsLink">
+            <dx-load-indicator [visible]="liqData.data.GENERAR" height="20" width="20"></dx-load-indicator>
+            <a href="javascript:;" (click)="IrAEstado('consulta',liqData.data.ANO, liqData.data.MES)" >
+                <i class="pi pi-refresh"></i>
             </a>
         </div>
 
@@ -99,3 +122,5 @@
         <p-button icon="pi pi-check" (click)="displayModal=false" label="Ok" styleClass="p-button-text"></p-button>
         </ng-template>
 </p-dialog>
+
+<p-menu #menulotes [popup]="true" [model]="listaLotes" ></p-menu>

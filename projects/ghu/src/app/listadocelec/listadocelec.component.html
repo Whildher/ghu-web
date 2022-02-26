@@ -1,0 +1,56 @@
+<div class="genelec">
+
+    <dx-data-grid 
+        #GDocElec
+        id="GDocElec" 
+        [dataSource]="DListaDoc"
+        keyExpr="ID"
+        [showBorders]="true"
+        [allowColumnResizing]="true"
+        [rowAlternationEnabled]="true"
+        [wordWrapEnabled]="true"
+        (onExporting)="onExporting($event)"
+        (onCellPrepared)="onCellPrepared($event)"
+        (onToolbarPreparing)="onToolbarPreparing($event)">
+
+        <dxo-filter-row 
+            [visible]="true"></dxo-filter-row>
+        <dxo-header-filter 
+            [visible]="true"></dxo-header-filter>
+        <dxo-search-panel 
+            [visible]="true" 
+            [width]="240" 
+            placeholder="Buscar..."></dxo-search-panel>
+        <dxo-selection mode="multiple" showCheckBoxesMode="always"></dxo-selection>
+
+        <dxo-paging 
+            [pageSize]="20">
+        </dxo-paging>
+        <dxo-pager 
+            [visible]="true" 
+            [allowedPageSizes]="allowedPageSizes" 
+            displayMode="full"
+            [showPageSizeSelector]="true" 
+            [showInfo]="true" 
+            [showNavigationButtons]="true">
+        </dxo-pager>
+
+        <dxi-column dataField="ID" [width]="120" caption="Id"></dxi-column>
+        <dxi-column dataField="ID_EMPLEADO" [width]="140" caption="Id Empleado"></dxi-column>
+        <dxi-column dataField="NOMBRE" caption="Nombre"></dxi-column>
+        <dxi-column dataField="STATUS" caption="Status"></dxi-column>
+        <dxi-column dataField="TRAN_ID" caption="Transacción"></dxi-column>
+
+        <dxo-export [enabled]="true" fileName="{{archExcelLiq}}"></dxo-export>
+
+        <div *dxTemplate="let data of 'titLiquidaciones'">
+            <div class="dx-fieldset-header">{{titListaDocGen}}</div>
+        </div>
+
+        <div *dxTemplate="let data of 'btnIrALiqElec'">
+            <button pButton pRipple type="button" label="Atrás" (click)="IrALiqElec($event)" class="p-button-info p-button-text p-button-sm" icon="pi pi-angle-left" ></button>
+        </div>
+
+    </dx-data-grid>
+
+</div>

@@ -27,7 +27,6 @@ import { PopvisorComponent } from './visor/popvisor/popvisor.component';
 import { LiquidacionesComponent } from './liqcontrato/liquidaciones.component';
 import { PrmliquidacionComponent } from './prmliquidacion/prmliquidacion.component';
 import { LiqgeneradaComponent } from './liqgenerada/liqgenerada.component';
-import { VisorrepComponent } from 'projects/reporting/src/app/visorrep/visorrep.component';
 import { GlobalsService } from './globals.service';
 import { AppsettingsService } from './appsettings.service';
 import { NomelecComponent } from './nomelec/nomelec.component';
@@ -39,6 +38,7 @@ import { NominaComponent } from './nomina/nomina.component';
 import { LiqmensualComponent } from './liqmensual/liqmensual.component';
 import { LiqdetalleComponent } from './liqdetalle/liqdetalle.component';
 import { ListadocelecComponent } from './listadocelec/listadocelec.component';
+import { VisorrepComponent } from './visorrep/visorrep.component';
 
 
 @NgModule({
@@ -97,7 +97,8 @@ import { ListadocelecComponent } from './listadocelec/listadocelec.component';
     DxTooltipModule,
     DxToastModule,
     DxNumberBoxModule,
-    DxTileViewModule
+    DxTileViewModule,
+    DxReportViewerModule
   ],
   providers: [DatePipe, GlobalsService, AppsettingsService],
   bootstrap: [AppComponent]

@@ -12,10 +12,10 @@ import { SplitterModule } from 'primeng/splitter';
 import { ReportesComponent } from './reportes/reportes.component';
 import { RepaplicacionComponent } from './repaplicacion/repaplicacion.component';
 import { FiltrorepComponent } from './filtrorep/filtrorep.component';
-import { VisorrepComponent } from './visorrep/visorrep.component';
 import { NavappComponent } from './navapp/navapp.component';
 import { DesignerComponent } from './designer/designer.component';
 import { CommonModule } from '@angular/common';
+import { VisorrepComponent } from './visorrep/visorrep.component';
 
 @NgModule({
   declarations: [
@@ -24,8 +24,8 @@ import { CommonModule } from '@angular/common';
     ReportesComponent,
     RepaplicacionComponent,
     FiltrorepComponent,
-    VisorrepComponent,  
-    NavappComponent
+    NavappComponent,
+    VisorrepComponent
   ],
   imports: [
     BrowserModule,

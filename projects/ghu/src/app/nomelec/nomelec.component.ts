@@ -93,7 +93,7 @@ export class NomelecComponent implements OnInit {
     this.estadoGenDoc = NumDoc;
     this._sdatos.genElectronica(Tipo, prm).subscribe((data: any)=> {
       this.LDocEmitidos = JSON.parse(data);
-      alert("Total:"+this.LDocEmitidos.length+" "+this.LDocEmitidos);
+      alert("Total:"+this.LDocEmitidos.length+" "+this.LDocEmitidos[0].ErrMensaje);
       filadatos.data.GENERAR = false;
       this.estadoGenDoc = "";
     },
@@ -103,17 +103,61 @@ export class NomelecComponent implements OnInit {
       this.errTit = "Error de registro electrónico";
       filadatos.data.GENERAR = false;
       return;
-  });
+    });
   }
 
-  IrAEstado(estado: string, ano: any, mes: any) {
+  IrAEstado(estado: string, data: any) {
     switch (estado) {
+      
       case "consulta":
-        const prm = { ID_DOC: ano, NC_DOC: mes };
-        this._sdatos.getDatos('RESULTADO EMISION NOMINA',prm).subscribe((data: any)=> {
-          this.LDocEmitidos = JSON.parse(data);
-        });
-        break;
+        var prm = {};
+          if (data.ID_APLICACION !== "GHU-027")
+            prm = { ID_DOC: data.DOCUMENTO.split(' ')[0], NC_DOC: data.DOCUMENTO.split(' ')[1], ID_APLICACION: data.ID_APLICACION };
+          else
+            prm = { ID_DOC: data.ANO, NC_DOC: data.MES, ID_APLICACION: data.ID_APLICACION, NUM_LIQ: data.NUM_LIQ };
+
+          // Muestra indicador...
+          data.GENERAR = true;
+          this.estadoGenDoc = data.DOCUMENTO;
+          this._sdatos.genConsultaNomElec(data.TIPO, prm).subscribe((datos: any)=> {
+            const res = JSON.parse(datos);
+            if (res[0].ErrMensaje !== "") {
+              data.GENERAR = false;
+              this.displayModal = true;
+              this.errMsg = res[0].ErrMensaje;
+              this.errTit = "Error en la consulta";
+              return;
+            }
+
+            var datLotes = this.DLiquidaciones.find((t: any) => t.ANO == data.ANO && t.MES == data.MES);
+            if (datLotes !== undefined) {
+              datLotes.LOTES = res[0].LOTES;
+              datLotes.ERR_CARGUE = res[0].ERR_CARGUE;
+              datLotes.ERR_FIRMA = res[0].ERR_FIRMA;
+              datLotes.FIRMADOS = res[0].FIRMADOS;
+              datLotes.LOTES.forEach((el: any) => {
+                el.command = () => this.IrAListaDoc(el.label)
+              });
+              this.listaLotes = datLotes.LOTES;
+            }
+        
+            data.GENERAR = false;
+            this.estadoGenDoc = "";
+
+            this.displayModal = true;
+            this.errMsg = "Revise los registros con errores y los que ya fueron firmados";
+            this.errTit = "Consulta exitosa";
+            data.GENERAR = false;
+
+          },
+          (err: any) => {
+            this.displayModal = true;
+            this.errMsg = err.error.Message;
+            this.errTit = "Error de consulta registro electrónico";
+            data.GENERAR = false;
+            return;
+          });
+      break;
     
       default:
         break;

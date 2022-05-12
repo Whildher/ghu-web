@@ -54,7 +54,7 @@ export class ListadocelecComponent implements OnInit {
   onCellPrepared(e: any) {
     if(e.rowType === "data" && e.column.dataField === "STATUS") {
       e.cellElement.style.color = e.data.ERROR !== "" ? "white" : "black";
-      e.cellElement.style.background = e.data.ERROR !== "" ? "red" : "white";
+      e.cellElement.style.background = e.data.ERROR !== "" ? "#f59696" : "white";
     }
   }
   IrALiqElec(e: any) {

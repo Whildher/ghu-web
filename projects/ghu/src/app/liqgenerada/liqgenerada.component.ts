@@ -435,11 +435,20 @@ export class LiqgeneradaComponent implements OnInit {
                   EMPRESA: this.valSeleccEmpresa,
                   GRUPO: this.valSeleccGrupo,
                   GEN_NOM: this.DFEmpleados.GEN_NOM,
-                  ELIM_LIQ: this.DFEmpleados.ELIM_LIQ
+                  ELIM_LIQ: this.DFEmpleados.ELIM_LIQ,
+                  COMENTARIOS: this.DFEmpleados.COMENTARIOS
                 };
     console.log(prm);
     this._sdatos.getDatos('PRE LIQUIDACION',prm).subscribe((data: any)=> {
       
+      if (data === null) {
+        this.displayModal = true;
+        this.errMsg = `Error Liquidando base. <br /><i>Nulos!</i> : `+JSON.stringify(prm);
+        this.errTit = "Liquidando base";
+        this.loadingVisible = false;
+        return;
+      }
+
       var datRes = JSON.parse(data);
       if (datRes[0].ErrMensaje != '')
       {
@@ -452,7 +461,11 @@ export class LiqgeneradaComponent implements OnInit {
 
       // Asigna datos del histórico
       this.DLiquidaciones = JSON.parse(data);
-      
+
+      // Numero y consecutivo liquidacion
+      this.num_liq = this.DLiquidaciones[0].NUM_LIQ?.replace('|',' ')?? '';
+      this.titLiquidacion = this.titLiquidacion.substring(0,this.titLiquidacion.indexOf('[') < 0 ? this.titLiquidacion.length : this.titLiquidacion.indexOf('[')-1) + ' [' + this.num_liq + ']';
+
       // Datos globales de la liquidación
       this.globals.dat_liq =  { id_apl: this.DLiquidaciones[0].ID_APL?? '', 
                                 id_liq: this.DLiquidaciones[0].ID_LIQ?? '', 
@@ -1142,13 +1155,16 @@ onValueChangedTodo(e: any) {
     this.usuario = this.globals.nom_usr;
     var transaccion = "";
 
+    debugger
+    //this.router.navigate(['/liqgenerada', {TipoLiq: IdLiq, NomLiq: NomLiq, PrmLiq: JSON.stringify({ NumLiq: numliq, ID_EMPLEADO: 'consulta'})}], {skipLocationChange: true});
+
     // Confecciona los elementos de acuerdo al tipo de liquidacion
     this.route.params.subscribe(parameter => {
       this.titLiquidacion = parameter['NomLiq'];
       this.id_Liquidacion = parameter['TipoLiq'];
       this.PrmGeneracion  = JSON.parse(parameter['PrmLiq']);
       this.globals.tit_pag = this.titLiquidacion;
-
+  
       // Filtro de generación
       if (this.PrmGeneracion.ID_EMPLEADO != 'consulta') {
         this.DFEmpleados.FECHA_INICIAL = this.PrmGeneracion.FECHA_DESDE;

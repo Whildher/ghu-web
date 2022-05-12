@@ -6,7 +6,6 @@ import { DxDrawerComponent, DxDrawerModule, DxListModule, DxRadioGroupModule,
 import { DxReportViewerComponent } from 'devexpress-reporting-angular';
 import 'devexpress-reporting/dx-richedit';
 import { ActivatedRoute } from '@angular/router';
-import { SreportesService } from '../sreportes.service';
 
 @Component({
   selector: 'app-visorrep',
@@ -28,8 +27,7 @@ export class VisorrepComponent implements OnInit {
   navigation: any;
   elementAttr: any;
 
-  constructor(private _sreportes: SreportesService,
-              private route: ActivatedRoute) { }
+  constructor(private route: ActivatedRoute) { }
 
   title = 'DXReportDesignerSample';
   getDesignerModelAction = "ReportDesigner/GetReportDesignerModel";

@@ -66,4 +66,25 @@ export class SdatosService {
             })
     );
 	}
+
+  genConsultaNomElec(Accion: string, prmDatos: any): Observable<any> {
+		const prmJ = {
+			"prmAccion": Accion,
+			"prmDatos": JSON.stringify(prmDatos),
+      "prmConexion": this.globals.clid
+		};
+    const body = JSON.stringify(prmJ);
+
+    let url = this.appSettingsService.settingsApp.urlapi + '/api/XPro/ConsultaNominaElectronica';
+    return this.http.post<any>(url, body,
+                          {headers: {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } }).
+          pipe(
+            map((vec: any) => {
+              return vec;
+            }),
+            catchError((err) => {
+              return throwError(err);
+            })
+    );
+	}
 }

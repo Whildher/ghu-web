@@ -21,6 +21,7 @@ export class LiqmensualComponent implements OnInit {
   usuario: string;
   archExcelNomina: string;
   cfg_concep: any;
+  readonly allowedPageSizes = [5, 10, 20, 50, 100, 'all'];
 
   // Alert de mensajes
   displayModal: boolean = false;

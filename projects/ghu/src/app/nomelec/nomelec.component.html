@@ -88,25 +88,25 @@
         </div>
         <div *dxTemplate="let liqData of 'cellErrCargue'" id="clsLink">
             <dx-load-indicator [visible]="liqData.data.GENERAR" height="20" width="20"></dx-load-indicator>
-            <a href="javascript:;" (click)="IrAEstado('err_cargue',liqData.data.ANO, liqData.data.MES)" *ngIf="liqData.data.ERR_CARGUE != 0">
+            <a href="javascript:;" (click)="IrAEstado('err_cargue',liqData.data)" *ngIf="liqData.data.ERR_CARGUE != 0">
                 <p-badge [value]="liqData.data.ERR_CARGUE" severity="danger" styleClass="mr-2"></p-badge>
             </a>
         </div>
         <div *dxTemplate="let liqData of 'cellErrFirma'" id="clsLink">
             <dx-load-indicator [visible]="liqData.data.GENERAR" height="20" width="20"></dx-load-indicator>
-            <a href="javascript:;" (click)="IrAEstado('err_cargue',liqData.data.ANO, liqData.data.MES)" *ngIf="liqData.data.ERR_FIRMA != 0">
+            <a href="javascript:;" (click)="IrAEstado('err_firmados',liqData.data)" *ngIf="liqData.data.ERR_FIRMA != 0">
                 <p-badge [value]="liqData.data.ERR_FIRMA" severity="danger" styleClass="mr-2"></p-badge>
             </a>
         </div>
         <div *dxTemplate="let liqData of 'cellFirma'" id="clsLink">
             <dx-load-indicator [visible]="liqData.data.GENERAR" height="20" width="20"></dx-load-indicator>
-            <a href="javascript:;" (click)="IrAEstado('firmados',liqData.data.ANO, liqData.data.MES)"  *ngIf="liqData.data.FIRMADOS != 0">
+            <a href="javascript:;" (click)="IrAEstado('firmados',liqData.data)"  *ngIf="liqData.data.FIRMADOS != 0">
                 <p-badge [value]="liqData.data.FIRMADOS" severity="success" styleClass="mr-2"></p-badge>
             </a>
         </div>
         <div *dxTemplate="let liqData of 'cellRefre'" id="clsLink">
             <dx-load-indicator [visible]="liqData.data.GENERAR" height="20" width="20"></dx-load-indicator>
-            <a href="javascript:;" (click)="IrAEstado('consulta',liqData.data.ANO, liqData.data.MES)" >
+            <a href="javascript:;" (click)="IrAEstado('consulta',liqData.data)" >
                 <i class="pi pi-refresh"></i>
             </a>
         </div>

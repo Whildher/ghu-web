@@ -23,6 +23,7 @@ export class Empleados {
       public COMENTARIOS?: string,
       public GEN_NOM?: boolean,
       public ELIM_LIQ?: string
+      
 	) {}
 
 }

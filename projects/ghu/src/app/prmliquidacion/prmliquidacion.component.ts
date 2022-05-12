@@ -293,6 +293,7 @@ export class PrmliquidacionComponent implements OnInit {
       this._sdatos.getDatos('CAUSAS',prm).subscribe((data: any)=> {
         this.dSBCausas = JSON.parse(data);
       });
+      this.DFEmpleados.COMENTARIOS = '';
 
     });
 

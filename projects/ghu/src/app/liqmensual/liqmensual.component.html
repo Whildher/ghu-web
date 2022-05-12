@@ -61,6 +61,17 @@
         [visible]="true"></dxo-filter-row>
     <dxo-header-filter 
         [visible]="true"></dxo-header-filter>
+        <dxo-paging 
+        [pageSize]="10">
+    </dxo-paging>
+    <dxo-pager 
+        [visible]="true" 
+        [allowedPageSizes]="allowedPageSizes" 
+        displayMode="full"
+        [showPageSizeSelector]="true" 
+        [showInfo]="true" 
+        [showNavigationButtons]="true">
+    </dxo-pager>
 
   <dxo-load-panel
         [enabled]="true"

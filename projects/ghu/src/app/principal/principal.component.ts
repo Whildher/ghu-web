@@ -11,24 +11,34 @@ import { switchMap } from 'rxjs/operators';
 import { GlobalsService } from '../globals.service';
 import { DxDataGridComponent } from 'devextreme-angular';
 import { JsonDataSourceWizardPageId } from '@devexpress/analytics-core/analytics-wizard';
+import { DatePipe } from '@angular/common';
+import { Workbook } from 'exceljs';
+import { exportDataGrid } from 'devextreme/excel_exporter';
 
 @Component({
   selector: 'app-principal',
   templateUrl: './principal.component.html',
-  styleUrls: ['./principal.component.scss']
+  styleUrls: ['./principal.component.scss'],
+  providers: [DatePipe]
 })
 export class PrincipalComponent implements OnInit {
   @ViewChild('GLiquidaciones', { static: false }) ddGLiq?: DxDataGridComponent;
 
   items: TiposLiq[] = [];
   DLiquidaciones: Liquidaciones[] = [];
+  DContratosVence: any;
   archExcelLiq: string = "";
+  archExcelLiqCont: string = "";
   readonly allowedPageSizes = [5, 10, 20, 50, 100, 'all'];
 	appsettings: AppSettings;
 	subscription: Subscription;
   imgImprimir: string = '../assets/print.png';
   usuario: string;
   empresa: string;
+  fechaDesde: any = new Date();
+  fechaHasta: any = new Date();
+  fechaDesdeCon: any = new Date();
+  fechaHastaCon: any = new Date();
 
   GLEmpleados: any;
   isGridBoxOpened: boolean=false;
@@ -66,12 +76,38 @@ export class PrincipalComponent implements OnInit {
               private route: ActivatedRoute,
               private appSettingsService: AppsettingsService,
               private _sdatos: SdatosService,
+              public datepipe: DatePipe,
               public globals: GlobalsService) 
   { 
     this.appSettingsService.getSettings();
 
     this.seleccEmpleado = this.seleccEmpleado.bind(this);
     this.onGridBoxOptionChanged = this.onGridBoxOptionChanged.bind(this);
+    
+    this.fechaDesde.setDate(this.fechaDesde.getDate()-90);
+    this.fechaDesdeCon = new Date(this.fechaDesdeCon.getFullYear(), this.fechaDesdeCon.getMonth(), 1);
+    this.fechaHastaCon = new Date(this.fechaDesdeCon.getFullYear(), (this.fechaDesdeCon.getMonth() + 1), 0);
+
+  }
+
+  disableDates(args: any) {
+    const fechaHoy = new Date();
+    return args.date < fechaHoy;
+  }
+
+  // Consulta por un rango de fecha
+  clickRangoLiq(e: any) {
+    const prm = { FILTRO: '', 
+                  FECHA_INICIAL: this.datepipe.transform(this.fechaDesde, 'MM/dd/yyyy'), 
+                  FECHA_FINAL: this.datepipe.transform(this.fechaHasta, 'MM/dd/yyyy') };
+    this._sdatos.getDatos('LIQUIDACIONES',prm).subscribe((data: any)=> {
+      this.DLiquidaciones = JSON.parse(data);
+    });
+  }
+
+  // Consulta los liquidados
+  clickRangoContrato(e: any) {
+    this.cargarContratosVence();
   }
 
   onToolbarPreparing(e: any) {
@@ -172,14 +208,41 @@ export class PrincipalComponent implements OnInit {
   }
 
   cargarLiquidaciones() {
-    const prm = { FILTRO: '' };
+    const prm = { FILTRO: '', 
+                  FECHA_INICIAL: this.datepipe.transform(this.fechaDesde, 'MM/dd/yyyy'), 
+                  FECHA_FINAL: this.datepipe.transform(this.fechaHasta, 'MM/dd/yyyy') };
     this._sdatos.getDatos('LIQUIDACIONES',prm).subscribe((data: any)=> {
       this.DLiquidaciones = JSON.parse(data);
     });
   }
 
+  cargarContratosVence() {
+    const prm = { FECHA_INICIAL: this.datepipe.transform(this.fechaDesdeCon, 'MM/dd/yyyy'), 
+                  FECHA_FINAL: this.datepipe.transform(this.fechaHastaCon, 'MM/dd/yyyy') };
+    this._sdatos.getDatos('VENCIMIENTO CONTRATOS',prm).subscribe((data: any)=> {
+      this.DContratosVence = JSON.parse(data);
+    });
+  }
+
+  onExporting(e: any, tipo: any) {
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet(tipo);
+    
+    exportDataGrid({
+      component: e.component,
+      worksheet: worksheet,
+      autoFilterEnabled: true
+    }).then(() => {
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        saveAs(new Blob([buffer], { type: 'application/octet-stream' }), tipo === 'liquidaciones' ? this.archExcelLiq : this.archExcelLiqCont);
+      });
+    });
+    e.cancel = true;
+  }
+
   ngOnInit(): void {
-    this.archExcelLiq = "Liquidaciones";
+    this.archExcelLiq = "Liquidaciones.xlsx";
+    this.archExcelLiqCont = "ContratosVencidos.xlsx";
 
     this.items = [
       { idliq: "Primas", nomliq: "Liquidación prima de servicio",
@@ -254,7 +317,9 @@ export class PrincipalComponent implements OnInit {
 
     // Datos de configuración inicial
     this.appSettingsService.getSettings().subscribe((datos) => {
-      const prm = { FILTRO: '' };
+      const prm = { FILTRO: '', 
+                    FECHA_INICIAL: this.datepipe.transform(this.fechaDesde, 'MM/dd/yyyy'), 
+                    FECHA_FINAL: this.datepipe.transform(this.fechaHasta, 'MM/dd/yyyy') };
       this._sdatos.getDatos('LIQUIDACIONES',prm).subscribe((data: any)=> {
         console.log(data);
         this.DLiquidaciones = JSON.parse(data);
@@ -266,7 +331,14 @@ export class PrincipalComponent implements OnInit {
       this._sdatos.getDatos('LISTA EMPLEADOS',prm).subscribe((data: any)=> {
         this.GLEmpleados = JSON.parse(data);
       });
+
+      this.cargarContratosVence();
+      
     })
+
+  }
+
+  IrAContrato(e: any) {
 
   }
 

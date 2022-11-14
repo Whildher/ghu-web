@@ -39,6 +39,7 @@ import { LiqmensualComponent } from './liqmensual/liqmensual.component';
 import { LiqdetalleComponent } from './liqdetalle/liqdetalle.component';
 import { ListadocelecComponent } from './listadocelec/listadocelec.component';
 import { VisorrepComponent } from './visorrep/visorrep.component';
+import { PgridComponent } from './pgrid/pgrid.component';
 
 
 @NgModule({
@@ -57,7 +58,8 @@ import { VisorrepComponent } from './visorrep/visorrep.component';
     NominaComponent,
     LiqmensualComponent,
     LiqdetalleComponent,
-    ListadocelecComponent
+    ListadocelecComponent,
+    PgridComponent
   ],
   imports: [
     BrowserModule,

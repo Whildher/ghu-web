@@ -1,5 +1,6 @@
 ng serve --port 4400 --proxy-config proxy.conf.json
 ng serve --ssl=true --host=0.0.0.0 --port 2350 --proxy-config proxy.conf.json
+http://localhost:4403/?usuario=1234&nom_usr=Carlos&clid=wonder
 
 {
     "/api/*":{

@@ -314,7 +314,8 @@ export class LiqgeneradaComponent implements OnInit {
       if (e.data.OPCION == 'FIJA')  // estas filas no se permiten eliminar 
       { 
         const delButton = e.cellElement.getElementsByClassName('dx-link-delete');
-        if (delButton !== undefined) delButton[0].remove();
+        //*** Se puede eliminar cualquier item */
+        //if (delButton !== undefined) delButton[0].remove();
       }
     }  
     if (e.rowType === 'totalFooter') {

@@ -54,8 +54,8 @@ export class VisorrepComponent implements OnInit {
       let prm = JSON.parse(prm_safe);
       //let prm = [{"CAMPO":"Mes_Start","EXPRESION":"01/01/2021"},{"CAMPO":"Mes_End","EXPRESION":"12/31/2021"}];
       this.reportUrl = prm.Datos.IdRpt + '?clid=' + prm.Datos.clid + '&' + JSON.stringify(prm);
-      //this.hostUrl = 'http://190.85.54.78:5000/';
-      this.hostUrl = 'http://localhost:8200/';
+      this.hostUrl = 'http://190.85.54.78:5200/';
+      // this.hostUrl = 'http://localhost:8200/';
       console.log("reporte........", this.hostUrl);
       this.invokeAction = "DXXRDV";
     });

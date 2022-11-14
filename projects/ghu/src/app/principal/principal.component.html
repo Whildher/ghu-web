@@ -37,6 +37,25 @@
     </div>
 </div>
 
+<div style="display: inline-flex;">
+    <div class="dx-field-label" style="font-size: 18px; color: #3d3d3d; font-family: 'Helvetica Neue','Segoe UI',helvetica,verdana,sans-serif;">
+        Rango de fechas:</div>
+    <div class="dx-field-value" style="width: 200px; display: inline-block !important;">
+        <dx-date-box [(value)]="fechaDesde" type="date"> </dx-date-box>
+    </div>
+    <div class="dx-field-value" style="width: 200px; display: inline-block !important; padding-left: 20px;">
+        <dx-date-box [(value)]="fechaHasta" type="date"> </dx-date-box>
+    </div>
+    <div class="dx-field-value" style="width: 20%; display: inline-block !important; padding-left: 20px;">
+        <dx-button
+            stylingMode="contained"
+            text="Consultar"
+            type="success"
+            (onClick)="clickRangoLiq($event)">
+        </dx-button>
+    </div>
+</div>
+
 <dx-data-grid 
     #GLiquidaciones
     id="GLiquidaciones" 
@@ -46,6 +65,7 @@
     [allowColumnResizing]="true"
     [rowAlternationEnabled]="true"
     [loadPanel]="{ shading: true }"
+    (onExporting)="onExporting($event, 'liquidaciones')"
     (onToolbarPreparing)="onToolbarPreparing($event)">
 
     <dxo-filter-row 
@@ -95,6 +115,85 @@
 
     <div *dxTemplate="let data of 'titLiquidaciones'">
         <div class="dx-fieldset-header">Últimas Liquidaciones</div>
+    </div>
+    
+</dx-data-grid>
+
+<!-- *** CONTRATOS POR VENCER *** -->
+<br><br>
+<div style="font-size: 20px; color: #3d3d3d; font-family: 'Helvetica Neue','Segoe UI',helvetica,verdana,sans-serif;">
+    Contratos
+</div>
+<hr class="m-0">
+
+<div style="display: inline-flex;">
+    <div class="dx-field-label" style="font-size: 18px; color: #3d3d3d; font-family: 'Helvetica Neue','Segoe UI',helvetica,verdana,sans-serif;">
+        Rango de fechas:</div>
+    <div class="dx-field-value" style="width: 200px; display: inline-block !important;">
+        <dx-date-box [(value)]="fechaDesdeCon" type="date"> </dx-date-box>
+    </div>
+    <div class="dx-field-value" style="width: 200px; display: inline-block !important; padding-left: 20px;">
+        <dx-date-box [(value)]="fechaHastaCon" type="date"> </dx-date-box>
+    </div>
+    <div class="dx-field-value" style="width: 20%; display: inline-block !important; padding-left: 20px;">
+        <dx-button
+            stylingMode="contained"
+            text="Consultar"
+            type="success"
+            (onClick)="clickRangoContrato($event)">
+        </dx-button>
+    </div>
+</div>
+<br>
+<dx-data-grid 
+    #GLiquidaciones
+    id="GContratosVence" 
+    [dataSource]="DContratosVence"
+    keyExpr="DOCUMENTO"
+    [showBorders]="true"
+    [allowColumnResizing]="true"
+    columnResizingMode="widget"
+    [rowAlternationEnabled]="true"
+    [loadPanel]="{ shading: true }"
+    (onExporting)="onExporting($event, 'contratos')"
+    (onToolbarPreparing)="onToolbarPreparing($event)">
+
+    <dxo-filter-row 
+        [visible]="true"></dxo-filter-row>
+    <dxo-header-filter 
+        [visible]="true"></dxo-header-filter>
+    <dxo-search-panel 
+        [visible]="true" 
+        [width]="240" 
+        placeholder="Buscar..."></dxo-search-panel>
+
+    <dxo-paging 
+        [pageSize]="10">
+    </dxo-paging>
+    <dxo-pager 
+        [visible]="true" 
+        [allowedPageSizes]="allowedPageSizes" 
+        displayMode="full"
+        [showPageSizeSelector]="true" 
+        [showInfo]="true" 
+        [showNavigationButtons]="true">
+    </dxo-pager>
+
+    <dxo-selection mode="single"></dxo-selection>
+
+    <dxi-column dataField="DOCUMENTO" [width]="120" caption="Id Liquidación" cellTemplate="cellTplIrA"></dxi-column>
+    <dxi-column dataField="EMPLEADO" [width]="370" caption="Empleado" ></dxi-column>
+    <dxi-column dataField="FECHA_INICIAL" [width]="150" caption="Fecha Inicio" format="MMM dd yyyy"></dxi-column>
+    <dxi-column dataField="FECHA_FINAL" [width]="150" caption="Fecha Vencimiento" format="MMM dd yyyy"></dxi-column>
+
+    <dxo-export [enabled]="true" [allowExportSelectedData]="true"></dxo-export>
+
+    <div *dxTemplate="let liqData of 'cellTplIrA'">
+        <a href="javascript:void(null);" (click)="IrAContrato(liqData.data.DOCUMENTO)">{{liqData.value}}</a>
+    </div>
+
+    <div *dxTemplate="let data of 'titLiquidaciones'">
+        <div class="dx-fieldset-header">Contratos vencidos y por vencer</div>
     </div>
     
 </dx-data-grid>

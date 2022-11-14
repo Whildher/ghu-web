@@ -1,9 +1,5 @@
 {
-    "/api/*":{
-        "target":"https://localhost:8600",
-        "secure":false,
-        "loglevel":"debug",
-        "timeout": 6000000
+    "/api/*": {
+        "target": "http://190.85.54.78:8111"
     }
-    
 }
